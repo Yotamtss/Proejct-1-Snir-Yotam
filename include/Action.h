@@ -14,7 +14,7 @@ class BaseAction{
         BaseAction();
         ActionStatus getStatus() const;
         virtual void act(Simulation& simulation)=0;
-        virtual const string toString() const=1;
+        virtual const string toString() const=0;
         virtual BaseAction* clone() const = 0;
         virtual ~BaseAction() = default;
 
