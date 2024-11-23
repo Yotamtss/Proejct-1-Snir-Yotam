@@ -1,33 +1,40 @@
-# Please implement your Makefile rules and targets below.
-# Customize this file to define how to build your project.
-# Compiler and flags
-CXX = g++
-CXXFLAGS = -Wall -Wextra -Iinclude -std=c++17
+# All Targets
+all: simulation
 
-# Directories
-SRC_DIR = src
-INCLUDE_DIR = include
-BIN_DIR = bin
+# Tool invocations
+# Executable “simulation” depends on the object files of all the source files.
+simulation: bin/Simulation.o bin/Plan.o bin/Settlements.o bin/SelectionPolicy.o bin/Facility.o
+	@echo 'Building target: simulation'
+	@echo 'Invoking: C++ Linker'
+	g++ -o bin/simulation bin/Simulation.o bin/Plan.o bin/Settlements.o bin/SelectionPolicy.o bin/Facility.o
+	@echo 'Finished building target: simulation'
+	@echo ''
 
-# Source and object files
-SRCS = $(wildcard $(SRC_DIR)/*.cpp)
-OBJS = $(SRCS:$(SRC_DIR)/%.cpp=$(BIN_DIR)/%.o)
+# Depends on the source and header files for Simulation
+bin/Simulation.o: src/Simulation.cpp
+	@echo 'Building object file: Simulation.o'
+	g++ -g -Wall -Wextra -std=c++11 -c -Iinclude -o bin/Simulation.o src/Simulation.cpp
 
-# Target executable
-TARGET = $(BIN_DIR)/simulation
+# Depends on the source and header files for Plan
+bin/Plan.o: src/Plan.cpp
+	@echo 'Building object file: Plan.o'
+	g++ -g -Wall -Wextra -std=c++11 -c -Iinclude -o bin/Plan.o src/Plan.cpp
 
-# Rules
-all: $(TARGET)
+# Depends on the source and header files for Settlements
+bin/Settlements.o: src/Settlements.cpp
+	@echo 'Building object file: Settlements.o'
+	g++ -g -Wall -Wextra -std=c++11 -c -Iinclude -o bin/Settlements.o src/Settlements.cpp
 
-$(TARGET): $(OBJS)
-	@mkdir -p $(BIN_DIR)
-	$(CXX) $(CXXFLAGS) -o $@ $^
+# Depends on the source and header files for SelectionPolicy
+bin/SelectionPolicy.o: src/SelectionPolicy.cpp
+	@echo 'Building object file: SelectionPolicy.o'
+	g++ -g -Wall -Wextra -std=c++11 -c -Iinclude -o bin/SelectionPolicy.o src/SelectionPolicy.cpp
 
-$(BIN_DIR)/%.o: $(SRC_DIR)/%.cpp
-	@mkdir -p $(BIN_DIR)
-	$(CXX) $(CXXFLAGS) -c $< -o $@
+# Depends on the source and header files for Facility
+bin/Facility.o: src/Facility.cpp
+	@echo 'Building object file: Facility.o'
+	g++ -g -Wall -Wextra -std=c++11 -c -Iinclude -o bin/Facility.o src/Facility.cpp
 
+# Clean the build directory
 clean:
-	rm -rf $(BIN_DIR)/*.o $(TARGET)
-
-.PHONY: all clean
+	rm -f bin/*
