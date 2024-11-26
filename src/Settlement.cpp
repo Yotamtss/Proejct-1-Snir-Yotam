@@ -3,7 +3,13 @@
 
 Settlement::Settlement(const string &name, SettlementType type) : name(name), type(type) {}
 
-Settlement::Settlement(const Settlement& other) : name(other.name), type(other.type) {}
+
+Settlement::Settlement(const Settlement* other)
+ : name((*other).getName())
+ , type((*other).getType()) {}
+
+
+/*
 
 Settlement& Settlement::operator=(const Settlement& other) {
     if (this != &other) {
@@ -25,12 +31,23 @@ Settlement& Settlement::operator=(Settlement&& other) noexcept {
 
 Settlement::~Settlement() = default;
 
+*/
+
 const string &Settlement::getName() const {
     return name;
 }
 
 SettlementType Settlement::getType() const {
     return type;
+}
+
+int Settlement::getConstructionLimit() const{
+    if(type == SettlementType::VILLAGE)
+        return 1;
+    else if(type == SettlementType::CITY)
+        return 2;
+    else
+        return 3;
 }
 
 const string Settlement::toString() const {

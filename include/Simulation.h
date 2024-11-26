@@ -16,7 +16,7 @@ class Simulation {
         void start();
         void addPlan(const Settlement &settlement, SelectionPolicy *selectionPolicy);
         void addAction(BaseAction *action);
-        bool addSettlement(Settlement settlement);
+        bool addSettlement(Settlement *settlement);
         bool addFacility(FacilityType facility);
         bool isSettlementExists(const string &settlementName);
         Settlement &getSettlement(const string &settlementName);
@@ -24,13 +24,20 @@ class Simulation {
         void step();
         void close();
         void open();
+        ~Simulation();
+        Simulation(const Simulation& other);
+        Simulation(Simulation&& other) noexcept;
+        //Simulation& operator=(const Simulation& other);
+        //Simulation& operator=(Simulation&& other) noexcept;
+
+
 
     private:
         bool isRunning;
         int planCounter; //For assigning unique plan IDs
         vector<BaseAction*> actionsLog;
         vector<Plan> plans;
-        vector<Settlement> settlements;
+        vector<Settlement*> settlements;
         vector<FacilityType> facilitiesOptions;
 
 };

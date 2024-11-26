@@ -1,40 +1,19 @@
-# All Targets
-all: simulation
+all: clean compile link run
 
-# Tool invocations
-# Executable “simulation” depends on the object files of all the source files.
-simulation: bin/Simulation.o bin/Plan.o bin/Settlements.o bin/SelectionPolicy.o bin/Facility.o
-	@echo 'Building target: simulation'
-	@echo 'Invoking: C++ Linker'
-	g++ -o bin/simulation bin/Simulation.o bin/Plan.o bin/Settlements.o bin/SelectionPolicy.o bin/Facility.o
-	@echo 'Finished building target: simulation'
-	@echo ''
+compile:
+	g++ -g -Wall -Weffc++ -c -Iinclude -o bin/settlement.o src/settlement.cpp
+	g++ -g -Wall -Weffc++ -c -Iinclude -o bin/Facility.o src/Facility.cpp
+	g++ -g -Wall -Weffc++ -c -Iinclude -o bin/testing.o src/testing.cpp
+	g++ -g -Wall -Weffc++ -c -Iinclude -o bin/SelectionPolicy.o src/SelectionPolicy.cpp
+	g++ -g -Wall -Weffc++ -c -Iinclude -o bin/Plan.o src/Plan.cpp
+	g++ -g -Wall -Weffc++ -c -Iinclude -o bin/Simulation.o src/Simulation.cpp
 
-# Depends on the source and header files for Simulation
-bin/Simulation.o: src/Simulation.cpp
-	@echo 'Building object file: Simulation.o'
-	g++ -g -Wall -Wextra -std=c++11 -c -Iinclude -o bin/Simulation.o src/Simulation.cpp
 
-# Depends on the source and header files for Plan
-bin/Plan.o: src/Plan.cpp
-	@echo 'Building object file: Plan.o'
-	g++ -g -Wall -Wextra -std=c++11 -c -Iinclude -o bin/Plan.o src/Plan.cpp
+link:
+	g++ -o bin/hello bin/Facility.o bin/testing.o bin/Settlement.o bin/SelectionPolicy.o bin/Plan.o bin/Simulation.o -L/usr/lib
 
-# Depends on the source and header files for Settlements
-bin/Settlements.o: src/Settlements.cpp
-	@echo 'Building object file: Settlements.o'
-	g++ -g -Wall -Wextra -std=c++11 -c -Iinclude -o bin/Settlements.o src/Settlements.cpp
+run:
+	./bin/hello
 
-# Depends on the source and header files for SelectionPolicy
-bin/SelectionPolicy.o: src/SelectionPolicy.cpp
-	@echo 'Building object file: SelectionPolicy.o'
-	g++ -g -Wall -Wextra -std=c++11 -c -Iinclude -o bin/SelectionPolicy.o src/SelectionPolicy.cpp
-
-# Depends on the source and header files for Facility
-bin/Facility.o: src/Facility.cpp
-	@echo 'Building object file: Facility.o'
-	g++ -g -Wall -Wextra -std=c++11 -c -Iinclude -o bin/Facility.o src/Facility.cpp
-
-# Clean the build directory
 clean:
-	rm -f bin/*
+	rm -f ./bin/main

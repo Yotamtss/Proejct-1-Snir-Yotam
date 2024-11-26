@@ -2,11 +2,15 @@
 #include <stdexcept>
 #include <limits>
 #include <sstream>
+#include <iostream>
+#include <bits/stdc++.h>
+using namespace std;
+using std::vector;
 
 // ----------------------------------------
 // Base Class: SelectionPolicy
 // ----------------------------------------
-SelectionPolicy::~SelectionPolicy() = default;
+//SelectionPolicy::~SelectionPolicy() = default;
 
 // ----------------------------------------
 // Derived Class: NaiveSelection
@@ -45,14 +49,17 @@ const FacilityType& BalancedSelection::selectFacility(const vector<FacilityType>
 
     int bestIndex = 0;
     double bestBalance = std::numeric_limits<double>::max();
-
-    for (size_t i = 0; i < facilitiesOptions.size(); ++i) {
+    vector<int> new_vals = {0, 0, 0};
+    
+    for (size_t i = 0; i < facilitiesOptions.size(); i++) {
         const FacilityType& facility = facilitiesOptions[i];
 
-        // Calculate balance as the sum of differences between scores
-        double balance = std::abs(LifeQualityScore - facility.getLifeQualityScore()) +
-                         std::abs(EconomyScore - facility.getEconomyScore()) +
-                         std::abs(EnvironmentScore - facility.getEnvironmentScore());
+        new_vals[0] = facility.getLifeQualityScore() + LifeQualityScore;
+        new_vals[1] = facility.getEconomyScore() + EconomyScore;
+        new_vals[2] = facility.getEnvironmentScore() + EnvironmentScore;
+
+        int balance = *max_element(new_vals.begin(), new_vals.end());
+        balance -= *min_element(new_vals.begin(), new_vals.end());
 
         // Choose the facility with the best balance (smallest balance value)
         if (balance < bestBalance) {
@@ -87,16 +94,20 @@ const FacilityType& EconomySelection::selectFacility(const vector<FacilityType>&
         throw std::runtime_error("No facilities available for selection.");
     }
 
-    // Select the facility with the highest economy score
-    size_t bestIndex = 0;
-    int bestEconomyScore = facilitiesOptions[0].getEconomyScore();
+    bool found = false;
+    int bestIndex = lastSelectedIndex++;
+    for (size_t i = 1; i < facilitiesOptions.size() && !found; i++) {
 
-    for (size_t i = 1; i < facilitiesOptions.size(); ++i) {
-        if (facilitiesOptions[i].getEconomyScore() > bestEconomyScore) {
-            bestEconomyScore = facilitiesOptions[i].getEconomyScore();
-            bestIndex = i;
-        }
+        FacilityType curr = facilitiesOptions[i];
+        found = (curr.getCategory() == FacilityCategory::ECONOMY);
+        if(found)
+            {
+                bestIndex = i;
+            }
+
     }
+
+    lastSelectedIndex = bestIndex;
 
     return facilitiesOptions[bestIndex];
 }
@@ -120,16 +131,20 @@ const FacilityType& SustainabilitySelection::selectFacility(const vector<Facilit
         throw std::runtime_error("No facilities available for selection.");
     }
 
-    // Select the facility with the highest environment score
-    size_t bestIndex = 0;
-    int bestEnvironmentScore = facilitiesOptions[0].getEnvironmentScore();
+    bool found = false;
+    int bestIndex = lastSelectedIndex++;
+    for (size_t i = 1; i < facilitiesOptions.size() && !found; i++) {
 
-    for (size_t i = 1; i < facilitiesOptions.size(); ++i) {
-        if (facilitiesOptions[i].getEnvironmentScore() > bestEnvironmentScore) {
-            bestEnvironmentScore = facilitiesOptions[i].getEnvironmentScore();
-            bestIndex = i;
-        }
+        FacilityType curr = facilitiesOptions.at(i);
+        found = (curr.getCategory() == FacilityCategory::ENVIRONMENT);
+        if(found)
+            {
+                bestIndex = i;
+            }
+
     }
+
+    lastSelectedIndex = bestIndex;
 
     return facilitiesOptions[bestIndex];
 }

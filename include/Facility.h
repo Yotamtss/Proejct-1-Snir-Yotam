@@ -24,6 +24,9 @@ class FacilityType {
         int getLifeQualityScore() const;
         int getEnvironmentScore() const;
         int getEconomyScore() const;
+        FacilityType clone() const;
+        FacilityType(const FacilityType &other);
+
         FacilityCategory getCategory() const;
 
     protected:
@@ -41,13 +44,18 @@ class Facility: public FacilityType {
 
     public:
         Facility(const string &name, const string &settlementName, const FacilityCategory category, const int price, const int lifeQuality_score, const int economy_score, const int environment_score);
-        Facility(FacilityType &type, const string &settlementName);
+        Facility(const FacilityType &type, const string &settlementName);
         const string &getSettlementName() const;
         const int getTimeLeft() const;
         FacilityStatus step();
         void setStatus(FacilityStatus status);
         const FacilityStatus& getStatus() const;
+        Facility(const Facility &other);
         const string toString() const;
+        Facility *clone() const;
+        //Facility operator=(const Facility& other);
+        //Facility(Facility&& other) noexcept;
+
 
     private:
         const string settlementName;

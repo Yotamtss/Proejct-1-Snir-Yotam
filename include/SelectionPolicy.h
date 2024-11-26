@@ -2,6 +2,7 @@
 #include <vector>
 #include "Facility.h"
 using std::vector;
+using namespace std;
 
 class SelectionPolicy {
     public:
