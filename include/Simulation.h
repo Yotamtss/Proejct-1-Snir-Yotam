@@ -27,7 +27,7 @@ class Simulation {
         ~Simulation();
         Simulation(const Simulation& other);
         Simulation(Simulation&& other) noexcept;
-        //Simulation& operator=(const Simulation& other);
+        Simulation& operator=(const Simulation& other);
         //Simulation& operator=(Simulation&& other) noexcept;
         int &getplanCounter();
         vector<FacilityType> &getFacilitiesOptions();

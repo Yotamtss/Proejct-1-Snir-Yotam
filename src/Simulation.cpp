@@ -17,28 +17,34 @@ using namespace std;
 /* 
 // Rule of 5 Implementation
 Simulation::Simulation(const Simulation& other) {
-    *this = other; // Delegate to copy assignment
-}
+    *this = other; // Delegate to copy assignment 
+}*/
 
 Simulation& Simulation::operator=(const Simulation& other) {
-    if (this != &other) {
+    if (this != &other) { 
         isRunning = other.isRunning;
         planCounter = other.planCounter;
 
-        // Deep copy actions
-        for (auto action : actionsLog) delete action;
+        for (auto action : actionsLog) {
+            delete action; // Clean up existing actions
+        }
         actionsLog.clear();
         for (auto action : other.actionsLog) {
-            //actionsLog.push_back(action->clone());
+            actionsLog.push_back(action->clone()); // Clone each action
         }
-
-        plans = other.plans; // Assume Plan implements Rule of 5
-        settlements = other.settlements;
+        plans = other.plans;
+        for (auto settlement : settlements) {
+            delete settlement; // Clean up existing settlements
+        }
+        settlements.clear();
+        for (auto settlement : other.settlements) {
+            settlements.push_back(new Settlement(*settlement)); // Deep copy each settlement
+        }
         facilitiesOptions = other.facilitiesOptions;
     }
     return *this;
 }
-
+/*
 Simulation::Simulation(Simulation&& other) noexcept
     : isRunning(other.isRunning),
       planCounter(other.planCounter),

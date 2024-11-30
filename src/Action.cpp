@@ -2,6 +2,9 @@
 #include <string>
 #include <vector>
 #include "Simulation.h"
+#include "SelectionPolicy.h"
+#include <string>
+
 
 using namespace std;
 
@@ -83,14 +86,39 @@ public:
         : settlementName(settlementName), selectionPolicy(selectionPolicy) {}
 
     void act(Simulation &simulation) override {
-        if(!simulation.isSettlementExists(settlementName) ||((selectionPolicy != "env")&&(selectionPolicy != "eco")&&
-        (selectionPolicy != "bal")&&(selectionPolicy != "nve"))){
-            error("cannot add this plan");
+         // Check if the settlement exists and if the policy is valid
+        if (!simulation.isSettlementExists(settlementName)) {
+            error("Cannot create this plan: Settlement does not exist.");
+            return;
         }
-        else {
-            simulation.addPlan(settlementName, selectionPolicy);
+
+        if (selectionPolicy != "env" && selectionPolicy != "eco" &&
+            selectionPolicy != "bal" && selectionPolicy != "nve") {
+            error("Cannot create this plan: Invalid selection policy.");
+            return;
+        }
+
+        // Create the appropriate selection policy
+        SelectionPolicy *policy = nullptr;
+        if (selectionPolicy == "nve") {
+            policy = new NaiveSelection();
+        } else if (selectionPolicy == "bal") {
+            policy = new BalancedSelection(); //ask yotam
+        } else if (selectionPolicy == "eco") {
+            policy = new EconomySelection();
+        } else if (selectionPolicy == "env") {
+            policy = new SustainabilitySelection();
+        }
+
+        // Add the plan to the simulation
+        if (policy) {
+            simulation.addPlan(simulation.getSettlement(settlementName), policy);
+            delete policy; // Clean up memory after usage
+        } else {
+            error("Cannot create this plan: Unknown error.");
         }
     }
+
 
     const string toString() const override {
         return "AddPlan " + settlementName + " " + selectionPolicy;
@@ -186,38 +214,39 @@ class PrintPlanStatus : public BaseAction {
         const int planId;
 };
 
-class changePlanPolicy : public BaseAction {
+class ChangePlanPolicy : public BaseAction {
  public:
-       changePlanPolicy::ChangePlanPolicy(const int planId, const string &newPolicy): planId(planId), newPolicy(newPolicy) {}
+ChangePlanPolicy::ChangePlanPolicy(const int planId, const std::string &newPolicy) : planId(planId), newPolicy(newPolicy) {}
         void act(Simulation &simulation) override {
             if(newPolicy == "nve"){
-                NaiveSelection ns = new NaiveSelection(simulation.getFacilitiesOptions());
+                NaiveSelection* ns = new NaiveSelection();
                 simulation.getPlan(planId).setSelectionPolicy(ns);
             }
             else if(newPolicy == "bal") {
-                BalancedSelection bs = new BalancedSelection(simulation.getFacilitiesOptions());
+                BalancedSelection* bs = new BalancedSelection();
                 simulation.getPlan(planId).setSelectionPolicy(bs);
             }
             else if(newPolicy == "eco") {
-                economySelection es = new economySelection(simulation.getFacilitiesOptions());
+                EconomySelection* es = new EconomySelection();
                 simulation.getPlan(planId).setSelectionPolicy(es);
             }
             else if(newPolicy == "env"){
-                 sustainabilitySelection ss = new sustainabilitySelection(simulation.getFacilitiesOptions());
+                 SustainabilitySelection* ss = new SustainabilitySelection();
                 simulation.getPlan(planId).setSelectionPolicy(ss);
             }                           
           
         }
-        PrintPlanStatus *clone() const override
+        ChangePlanPolicy *clone() const override
         {
              return new ChangePlanPolicy(*this);
         }
         const string toString() const override
         {
-             return "Plan status of " + planId + "changed to" + newPolicy;
+             return "Plan status of " + to_string(planId) + "changed to" + newPolicy;
         }
     private:
         const int planId;
+        const string newPolicy;
 };
 
 

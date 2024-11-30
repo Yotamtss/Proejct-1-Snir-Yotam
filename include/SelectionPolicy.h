@@ -25,6 +25,7 @@ class NaiveSelection: public SelectionPolicy {
 
 class BalancedSelection: public SelectionPolicy {
     public:
+        BalancedSelection();
         BalancedSelection(int LifeQualityScore, int EconomyScore, int EnvironmentScore);
         const FacilityType& selectFacility(const vector<FacilityType>& facilitiesOptions) override;
         const string toString() const override;
