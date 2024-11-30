@@ -3,7 +3,7 @@
 #include "SelectionPolicy.h"
 
 // Constructor
-Plan::Plan(const int planId, const Settlement *settlement, SelectionPolicy *selectionPolicy, const vector<FacilityType> &facilityOptions)
+Plan::Plan(const int planId, const Settlement &settlement, SelectionPolicy *selectionPolicy, const vector<FacilityType> &facilityOptions)
     : plan_id(planId)
     , settlement(settlement)
     , selectionPolicy(selectionPolicy)
@@ -40,10 +40,10 @@ void Plan::step() {
     // Stage 1: Check if plan is BUSY
     if (status != PlanStatus::BUSY) {
         // Stage 2: Select and add new facilities if possible
-        while (underConstruction.size() < settlement->getConstructionLimit() && status != PlanStatus::BUSY) {
+        while (underConstruction.size() < settlement.getConstructionLimit() && status != PlanStatus::BUSY) {
             // Select facility based on current policy
-            Facility* newFacility = new Facility(selectionPolicy->selectFacility(facilityOptions), settlement->getName());
-            underConstruction.push_back(newFacility);
+            Facility* newFacility = new Facility(selectionPolicy->selectFacility(facilityOptions), settlement.getName());
+            addFacility(newFacility);
         }
     }
 
@@ -55,20 +55,14 @@ void Plan::step() {
         FacilityStatus facilityStatus = facility->step();
         if (facilityStatus == FacilityStatus::OPERATIONAL) {
             // Update scores
-            life_quality_score += facility->getLifeQualityScore();
-            economy_score += facility->getEconomyScore();
-            environment_score += facility->getEnvironmentScore();
-            
-            // Move to completed facilities
-            facilities.push_back(facility);
+            addFacility(facility);
             underConstruction.erase(underConstruction.begin() + i);
-
     }
 
     }
 
     // Stage 4: Update plan status
-    status = (underConstruction.size() >= settlement->getConstructionLimit()) 
+    status = (underConstruction.size() >= settlement.getConstructionLimit()) 
         ? PlanStatus::BUSY 
         : PlanStatus::AVALIABLE;
 }
@@ -86,24 +80,30 @@ const int Plan::getID() const {
 }
 
 void Plan::addFacility(Facility* facility) {
-    facilities.push_back(facility);
     // Update scores
     life_quality_score += facility->getLifeQualityScore();
     economy_score += facility->getEconomyScore();
     environment_score += facility->getEnvironmentScore();
+
+    if (facility->getStatus() == FacilityStatus::OPERATIONAL)
+        facilities.push_back(facility);
+    else
+        underConstruction.push_back(facility);
+
 }
 
 
 const string Plan::toString() const {
-    string result = "planID: " + std::to_string(plan_id) + " settlementName: " + settlement->getName() + "\n";
+    string result = "planID: " + std::to_string(plan_id) + " settlementName: " + settlement.getName() + "\n";
     result += "planStatus: " + string(status == PlanStatus::BUSY ? "BUSY" : "AVALIABLE") + "\n";
     
     // Selection policy string representation
     string policyStr;
-    if (dynamic_cast<NaiveSelection*>(selectionPolicy)) policyStr = "nve";
-    else if (dynamic_cast<BalancedSelection*>(selectionPolicy)) policyStr = "bal";
-    else if (dynamic_cast<EconomySelection*>(selectionPolicy)) policyStr = "eco";
-    else if (dynamic_cast<SustainabilitySelection*>(selectionPolicy)) policyStr = "env";
+    policyStr = selectionPolicy->toString();
+    if (policyStr == "NaiveSelection") policyStr = "nve";
+    else if (policyStr == "BalancedSelection") policyStr = "bal";
+    else if (policyStr == "EconomySelection") policyStr = "eco";
+    else if (policyStr == "SustainabilitySelection") policyStr = "env";
     
     result += "selectionPolicy: " + policyStr + "\n";
     result += "LifeQualityScore: " + std::to_string(life_quality_score) + "\n";
@@ -165,45 +165,6 @@ Plan::Plan(const Plan& other)
     }
 }
 
-/*Plan& Plan::operator=(const Plan& other) {
-    if (this != &other) {
-        // Clean up current resources
-        if (selectionPolicy) {
-            delete selectionPolicy;
-        }
-        for (Facility* facility : facilities) {
-            delete facility;
-        }
-        facilities.clear();
-
-        for (Facility* facility : underConstruction) {
-            delete facility;
-        }
-        underConstruction.clear();
-
-        // Copy data from `other`
-        plan_id = other.plan_id;
-        settlement = other.settlement;
-        selectionPolicy = other.selectionPolicy ? other.selectionPolicy->clone() : nullptr;
-        status = other.status;
-        facilityOptions = other.facilityOptions;
-        life_quality_score = other.life_quality_score;
-        economy_score = other.economy_score;
-        environment_score = other.environment_score;
-
-        // Deep copy facilities
-        for (const Facility* facility : other.facilities) {
-            facilities.push_back(new Facility(*facility));
-        }
-
-        for (const Facility* facility : other.underConstruction) {
-            underConstruction.push_back(new Facility(*facility));
-        }
-    }
-    return *this;
-}
-*/
-
 
 Plan::Plan(Plan&& other) noexcept 
     : plan_id(other.plan_id)
@@ -219,43 +180,5 @@ Plan::Plan(Plan&& other) noexcept
     
     // Nullify moved-from object's pointers
     other.selectionPolicy = nullptr;
-    other.settlement = nullptr;
+    //other.settlement = nullptr;
 }
-
-/*
-Plan& Plan::operator=(Plan&& other) noexcept {
-    if (this != &other) {
-        // Clean up current resources
-        if (selectionPolicy) {
-            delete selectionPolicy;
-        }
-        for (Facility* facility : facilities) {
-            delete facility;
-        }
-        facilities.clear();
-
-        for (Facility* facility : underConstruction) {
-            delete facility;
-        }
-        underConstruction.clear();
-
-        // Transfer data from `other`
-        plan_id = other.plan_id;
-        settlement = other.settlement;
-        selectionPolicy = other.selectionPolicy;
-        status = other.status;
-        facilities = std::move(other.facilities);
-        underConstruction = std::move(other.underConstruction);
-
-        facilityOptions = std::move(other.facilityOptions);
-        life_quality_score = other.life_quality_score;
-        economy_score = other.economy_score;
-        environment_score = other.environment_score;
-
-        // Nullify moved-from object's pointers
-        other.selectionPolicy = nullptr;
-        other.settlement = nullptr;
-    }
-    return *this;
-    }
-*/

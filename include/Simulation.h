@@ -29,7 +29,12 @@ class Simulation {
         Simulation(Simulation&& other) noexcept;
         //Simulation& operator=(const Simulation& other);
         //Simulation& operator=(Simulation&& other) noexcept;
-
+        int &getplanCounter();
+        vector<FacilityType> &getFacilitiesOptions();
+        vector<BaseAction*> &getActionsLog(); 
+        vector<Settlement*> &getSettlements();
+        void actionHandler(const std::string& action);
+        void Simulation::printInitialState() const;
 
 
     private:
@@ -39,5 +44,4 @@ class Simulation {
         vector<Plan> plans;
         vector<Settlement*> settlements;
         vector<FacilityType> facilitiesOptions;
-
 };

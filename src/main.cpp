@@ -12,10 +12,10 @@ int main(int argc, char** argv){
     }
     string configurationFile = argv[1];
     Simulation simulation(configurationFile);
-    simulation.start();
+    /*simulation.start();
     if(backup!=nullptr){
     	delete backup;
     	backup = nullptr;
-    }
+    }*/
     return 0;
 }

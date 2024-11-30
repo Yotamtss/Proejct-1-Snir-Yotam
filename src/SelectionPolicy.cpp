@@ -72,11 +72,8 @@ const FacilityType& BalancedSelection::selectFacility(const vector<FacilityType>
 }
 
 const string BalancedSelection::toString() const {
-    std::ostringstream oss;
-    oss << "BalancedSelection(LifeQualityScore=" << LifeQualityScore
-        << ", EconomyScore=" << EconomyScore
-        << ", EnvironmentScore=" << EnvironmentScore << ")";
-    return oss.str();
+    return "BalancedSelection";
+
 }
 
 BalancedSelection* BalancedSelection::clone() const {
@@ -96,20 +93,14 @@ const FacilityType& EconomySelection::selectFacility(const vector<FacilityType>&
 
     bool found = false;
     int bestIndex = lastSelectedIndex++;
-    for (size_t i = 1; i < facilitiesOptions.size() && !found; i++) {
-
-        FacilityType curr = facilitiesOptions[i];
+    int index = lastSelectedIndex;
+    while (!found) {
+        index = (index + 1) % facilitiesOptions.size();
+        FacilityType curr = facilitiesOptions[index];
         found = (curr.getCategory() == FacilityCategory::ECONOMY);
-        if(found)
-            {
-                bestIndex = i;
-            }
-
     }
-
-    lastSelectedIndex = bestIndex;
-
-    return facilitiesOptions[bestIndex];
+    lastSelectedIndex = index;
+    return facilitiesOptions[index];
 }
 
 const string EconomySelection::toString() const {
@@ -133,20 +124,14 @@ const FacilityType& SustainabilitySelection::selectFacility(const vector<Facilit
 
     bool found = false;
     int bestIndex = lastSelectedIndex++;
-    for (size_t i = 1; i < facilitiesOptions.size() && !found; i++) {
-
-        FacilityType curr = facilitiesOptions.at(i);
+    int index = lastSelectedIndex;
+    while (!found) {
+        index = (index + 1) % facilitiesOptions.size();
+        FacilityType curr = facilitiesOptions[index];
         found = (curr.getCategory() == FacilityCategory::ENVIRONMENT);
-        if(found)
-            {
-                bestIndex = i;
-            }
-
     }
-
-    lastSelectedIndex = bestIndex;
-
-    return facilitiesOptions[bestIndex];
+    lastSelectedIndex = index;
+    return facilitiesOptions[index];
 }
 
 const string SustainabilitySelection::toString() const {

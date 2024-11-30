@@ -5,8 +5,8 @@ Settlement::Settlement(const string &name, SettlementType type) : name(name), ty
 
 
 Settlement::Settlement(const Settlement* other)
- : name((*other).getName())
- , type((*other).getType()) {}
+ : name(other->getName())
+ , type(other->getType()) {}
 
 
 /*

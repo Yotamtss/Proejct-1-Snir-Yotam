@@ -90,8 +90,6 @@ Simulation::Simulation(const string &configFilePath) : isRunning(false), planCou
         {
             continue;
         }
-
-        std::cout << line << std::endl;
         
         actionHandler(line); // Handle the full line of input        
     }
@@ -294,13 +292,13 @@ void Simulation::actionHandler(const std::string &action)
 
 }
 
-void Simulation::printLog() const
+/*void Simulation::printLog() const
 {
     for (BaseAction *action : actionsLog)
     {
         std::cout << action->toString() << std::endl;
     }
-}
+}*/
 
 std::vector<std::string> parseToWords(const std::string &input)
 {

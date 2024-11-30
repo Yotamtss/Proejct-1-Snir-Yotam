@@ -104,6 +104,7 @@ Facility *Facility::clone() const{
     return new Facility(*this);
 }
 
+/*
 Facility::Facility(const Facility& other)
     : FacilityType(other.getName(), other.getCategory(), other.getCost(), 
                    other.getLifeQualityScore(), other.getEconomyScore(), other.getEnvironmentScore())
@@ -113,7 +114,7 @@ Facility::Facility(const Facility& other)
 {
 }
 
-/*
+
 // Move constructor
 Facility::Facility(Facility&& other) noexcept
     : FacilityType(std::move(other))  // Move base class members
