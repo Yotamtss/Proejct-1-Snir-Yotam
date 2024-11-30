@@ -1,9 +1,18 @@
-#include "Simulation.h"
 #include <fstream>
 #include <iostream>
-#include <sstream>
-#include <stdexcept>
+#include <string>
+#include <vector>
 #include <algorithm>
+#include <stdexcept>
+#include "Simulation.h"
+#include "Auxiliary.h"
+#include "Settlement.h"
+#include "Facility.h"
+#include "SelectionPolicy.h"
+#include "Action.h"
+#include "Plan.h"
+#include <sstream>
+using namespace std;
 
 /* 
 // Rule of 5 Implementation
@@ -58,56 +67,59 @@ Simulation& Simulation::operator=(Simulation&& other) noexcept {
 */
 Simulation::~Simulation() {
     for (auto action : actionsLog) delete action;
+    actionsLog.clear();
     for (auto settlement : settlements) delete settlement;
-
+    settlements.clear();
 }
 
 // Constructor: Parse Config File
 Simulation::Simulation(const string &configFilePath) : isRunning(false), planCounter(0) {
     std::ifstream configFile(configFilePath);
-    if (!configFile) {
+    if (!configFile.is_open()) {
         throw std::runtime_error("Failed to open config file: " + configFilePath);
     }
 
     string line;
     while (std::getline(configFile, line)) {
-        std::istringstream iss(line);
-        string command;
-        iss >> command;
+        // Trim leading/trailing whitespaces
+        line.erase(0, line.find_first_not_of(" \t\n\r"));
+        line.erase(line.find_last_not_of(" \t\n\r") + 1);
 
-        if (command == "settlement") {
-            string name;
-            int type;
-            iss >> name >> type;
-            Settlement toAdd = Settlement(name, static_cast<SettlementType>(type));
-            addSettlement(&toAdd);
-        } else if (command == "facility") {
-            string name;
-            int category, price, lifeq, eco, env;
-            iss >> name >> category >> price >> lifeq >> eco >> env;
-            addFacility(FacilityType(name, static_cast<FacilityCategory>(category), price, lifeq, eco, env));
-        } else if (command == "plan") {
-            string settlementName, policyAbbr;
-            iss >> settlementName >> policyAbbr;
-            SelectionPolicy *policy = nullptr;
-
-            if (policyAbbr == "nve") policy = new NaiveSelection();
-            else if (policyAbbr == "bal") policy = new BalancedSelection(0, 0, 0);
-            else if (policyAbbr == "eco") policy = new EconomySelection();
-            else if (policyAbbr == "env") policy = new SustainabilitySelection();
-
-            if (policy && isSettlementExists(settlementName)) {
-                addPlan(getSettlement(settlementName), policy);
-            } else {
-                throw std::runtime_error("Invalid plan configuration.");
-            }
+        // Skip empty lines or comments
+        if (line.empty() || line[0] == '#')
+        {
+            continue;
         }
+
+        std::cout << line << std::endl;
+        
+        actionHandler(line); // Handle the full line of input        
     }
-    start();
+    
+    planCounter = plans.size();
+    configFile.close();
 }
 void Simulation::start() {
     isRunning = true;
+    std::string action = "";
+
     std::cout << "The Simulation has started" << std::endl;
+
+        while (true)
+    {
+        std::cout << "Type an action (or 'close' to stop): ";
+        std::getline(std::cin, action); // Use getline to capture the entire input line
+
+        if (action == "close")
+        {
+            std::cout << "Simulation finished." << std::endl;
+            break; // Exit the loop if user types "close"
+        }
+
+        actionHandler(action); // Handle the full line of input
+    }
+
+    isRunning = false; // Mark simulation as stopped
 }
 
 // Add a plan to the simulation
@@ -115,7 +127,7 @@ void Simulation::addPlan(const Settlement &settlement, SelectionPolicy *selectio
     if (!isSettlementExists(settlement.getName())) {
         throw std::runtime_error("Settlement does not exist: " + settlement.getName());
     }
-    plans.emplace_back(planCounter++, &settlement, selectionPolicy, facilitiesOptions);
+    plans.emplace_back(planCounter++, settlement, selectionPolicy, facilitiesOptions);
 }
 
 // Add an action to the simulation
@@ -145,11 +157,12 @@ Settlement &Simulation::getSettlement(const string &settlementName)
 } 
 Plan &Simulation::getPlan(const int planID)
 {
-    for(Plan plan : plans)
+    if (planID < 0 || planID >= plans.size())
     {
-        if(plan.getID() == planID)
-            return plan;
+        std::cout << "Invalid plan ID" << std::endl;
     }
+    // Return the plan by reference
+    return plans[planID];
 } 
 
 // Add a facility to the simulation
@@ -165,10 +178,14 @@ bool Simulation::addFacility(FacilityType facility) {
 
 // Check if a settlement exists
 bool Simulation::isSettlementExists(const string &settlementName) {
-    return std::any_of(settlements.begin(), settlements.end(),
-                       [&settlementName](const Settlement &s) {
-                           return s.getName() == settlementName;
-                       });
+    for (Settlement *settl : settlements)
+    {
+        if (settl->getName() == settlementName)
+        {
+            return true;
+        } 
+    }
+    return false;
 }
 
 void Simulation::step(){
@@ -193,5 +210,143 @@ void Simulation::close()
     isRunning = false;
 }
 
+void Simulation::actionHandler(const std::string &action)
+{
+    std::vector<std::string> words = Auxiliary::parseArguments(action);
 
+    if (words[0] == "log")
+    {
+        PrintActionsLog printLog = PrintActionsLog();
+        printLog.act(*this);
+        BaseAction *clonedRestore = printLog.clone();
+        actionsLog.push_back(clonedRestore);
+    }
 
+    if (words[0] == "settlement")
+    {
+        SettlementType type;
+        if(words[2] == "0") type = SettlementType::VILLAGE;
+        else if(words[2] == "1") type = SettlementType::CITY;
+        else if(words[2] == "2") type = SettlementType::METROPOLIS;
+        AddSettlement settlemntToBeAdded = AddSettlement(words[1], type);
+        settlemntToBeAdded.act(*this);
+        BaseAction *clonedRestore = settlemntToBeAdded.clone();
+        actionsLog.push_back(clonedRestore);
+    }
+    else if (words[0] == "facility")
+    {
+        FacilityCategory cat;
+        if(words[2] == "0") cat = FacilityCategory::LIFE_QUALITY;
+        else if(words[2] == "1") cat = FacilityCategory::ECONOMY;
+        else if(words[2] == "2") cat = FacilityCategory::ENVIRONMENT;
+        AddFacility faccilityToBeAdded = AddFacility(words[1], cat, std::stoi(words[3]), std::stoi(words[4]), std::stoi(words[5]), std::stoi(words[6]));
+        faccilityToBeAdded.act(*this);
+        BaseAction *clonedRestore = faccilityToBeAdded.clone();
+        actionsLog.push_back(clonedRestore);
+
+    }
+        else if (words[0] == "plan")
+    {
+        if (isSettlementExists(words[1]))
+        {
+            AddPlan planToBeAdded(words[1], words[2]);
+            planToBeAdded.act(*this);
+            BaseAction *clonedRestore = planToBeAdded.clone();
+            actionsLog.push_back(clonedRestore);
+        }
+        else
+        {
+            std::cout << "No settlement like this" << std::endl;
+        }
+    }
+
+    else if (words[0] == "planStatus")
+    {
+        PrintPlanStatus planStatusToBeAdded = PrintPlanStatus(std::stoi(words[1]));
+        planStatusToBeAdded.act(*this);
+        BaseAction *clonedRestore = planStatusToBeAdded.clone();
+        actionsLog.push_back(clonedRestore);
+    }
+    if (words[0] == "step")
+    {
+        SimulateStep simulateStepToBeAdded = SimulateStep(std::stoi(words[1]));
+        simulateStepToBeAdded.act(*this);
+        BaseAction *clonedRestore = simulateStepToBeAdded.clone();
+        actionsLog.push_back(clonedRestore);
+    }
+    if (words[0] == "changePlanPoliciy")
+    {
+        ChangePlanPolicy changePlanPolicyToBeAdded = ChangePlanPolicy(std::stoi(words[1]), words[2]);
+        changePlanPolicyToBeAdded.act(*this);
+        BaseAction *clonedRestore = changePlanPolicyToBeAdded.clone();
+        actionsLog.push_back(clonedRestore);
+    }
+
+    else if (words[0] == "restore")
+    {
+        std::cout << "Call restore operation" << std::endl;
+    }
+
+    else if (words[0] == "backup")
+    {
+        std::cout << "Call backup operation" << std::endl;
+    }
+
+}
+
+void Simulation::printLog() const
+{
+    for (BaseAction *action : actionsLog)
+    {
+        std::cout << action->toString() << std::endl;
+    }
+}
+
+std::vector<std::string> parseToWords(const std::string &input)
+{
+    std::vector<std::string> words;
+    std::istringstream stream(input);
+    std::string word;
+
+    // Extract each word and add to the vector
+    while (stream >> word)
+    {
+        words.push_back(word);
+    }
+
+    return words;
+}
+
+// Function to print the initial state of the Simulation
+void Simulation::printInitialState() const
+{
+    if (settlements.empty())
+    {
+        std::cout << "  None" << std::endl;
+    }
+    else
+    {
+        for (const auto &settlement : settlements)
+        {
+            std::cout << settlement->toString() << std::endl;
+        }
+    }
+
+    std::cout << "Facilities Options:" << std::endl;
+    if (facilitiesOptions.empty())
+    {
+        std::cout << "  None" << std::endl;
+    }
+    else
+    {
+        for (const auto &facility : facilitiesOptions)
+        {
+            std::cout << "  Name: " << facility.getName()
+                      //<< "  Category: " << facility.getCategory() << "\n"
+                      << ", Price: " << facility.getCost()
+                      << ", Life Quality Score: " << facility.getLifeQualityScore()
+                      << ", Economy Score: " << facility.getEconomyScore()
+                      << ", Environment Score: " << facility.getEnvironmentScore() << std::endl;
+        }
+    }
+}
