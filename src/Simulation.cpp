@@ -32,7 +32,11 @@ Simulation& Simulation::operator=(const Simulation& other) {
         for (auto action : other.actionsLog) {
             actionsLog.push_back(action->clone()); // Clone each action
         }
-        plans = other.plans;
+
+        plans.clear();
+        for(auto plan : other.plans)
+            plans.push_back(plan);
+
         for (auto settlement : settlements) {
             delete settlement; // Clean up existing settlements
         }
@@ -40,7 +44,8 @@ Simulation& Simulation::operator=(const Simulation& other) {
         for (auto settlement : other.settlements) {
             settlements.push_back(new Settlement(*settlement)); // Deep copy each settlement
         }
-        facilitiesOptions = other.facilitiesOptions;
+        for (auto facil : other.facilitiesOptions)
+            facilitiesOptions.push_back(facil);
     }
     return *this;
 }
@@ -298,13 +303,13 @@ void Simulation::actionHandler(const std::string &action)
 
 }
 
-/*void Simulation::printLog() const
+void Simulation::printLog() const
 {
     for (BaseAction *action : actionsLog)
     {
         std::cout << action->toString() << std::endl;
     }
-}*/
+}
 
 std::vector<std::string> parseToWords(const std::string &input)
 {

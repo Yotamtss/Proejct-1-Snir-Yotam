@@ -1,4 +1,4 @@
-#include "Facility.h"
+/* #include "Facility.h"
 #include "Settlement.h"
 #include "Plan.h"
 #include <cassert>
@@ -98,7 +98,7 @@ int main() {
     //assert(plan.getPlanStatus() == AVAILABLE);
     
     // Test facility addition
-    //plan.addFacility(/* facility parameters */);
+    //plan.addFacility();
     //assert(plan.getUnderConstructionFacilities().size() == 1);
     
     // Test step simulation
@@ -122,7 +122,7 @@ Simulation sim;
     SimulateStepAction step(1);
     step.act(sim);
 
-*/
+
 
    std::cout << "Success!\n";
   
@@ -130,7 +130,7 @@ Simulation sim;
 
 }
 
-
+*/
 
     
 

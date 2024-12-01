@@ -1,19 +1,32 @@
+# Please implement your Makefile rules and targets below.
+# Customize this file to define how to build your project.
 all: clean compile link run
 
-compile:
-	g++ -g -Wall -Weffc++ -c -Iinclude -o bin/settlement.o src/settlement.cpp
-	g++ -g -Wall -Weffc++ -c -Iinclude -o bin/Facility.o src/Facility.cpp
-	g++ -g -Wall -Weffc++ -c -Iinclude -o bin/main.o src/main.cpp
-	g++ -g -Wall -Weffc++ -c -Iinclude -o bin/SelectionPolicy.o src/SelectionPolicy.cpp
-	g++ -g -Wall -Weffc++ -c -Iinclude -o bin/Plan.o src/Plan.cpp
-	g++ -g -Wall -Weffc++ -c -Iinclude -o bin/Simulation.o src/Simulation.cpp
-
-
+# Linking step
 link:
-	g++ -o bin/hello bin/Facility.o bin/main.o bin/Settlement.o bin/SelectionPolicy.o bin/Plan.o bin/Simulation.o -L/usr/lib
+	g++ -o bin/simulation bin/main.o bin/Action.o bin/Auxiliary.o bin/Facility.o bin/Plan.o bin/SelectionPolicy.o bin/Settlement.o bin/Simulation.o
 
-run:
-	./bin/hello
+# Compilation step
+compile:
+	g++ -g -Wall -Weffc++ -std=c++11 -Iinclude -c -o bin/main.o src/main.cpp
+	g++ -g -Wall -Weffc++ -std=c++11 -Iinclude -c -o bin/Action.o src/Action.cpp
+	g++ -g -Wall -Weffc++ -std=c++11 -Iinclude -c -o bin/Auxiliary.o src/Auxiliary.cpp
+	g++ -g -Wall -Weffc++ -std=c++11 -Iinclude -c -o bin/Facility.o src/Facility.cpp
+	g++ -g -Wall -Weffc++ -std=c++11 -Iinclude -c -o bin/Plan.o src/Plan.cpp
+	g++ -g -Wall -Weffc++ -std=c++11 -Iinclude -c -o bin/SelectionPolicy.o src/SelectionPolicy.cpp
+	g++ -g -Wall -Weffc++ -std=c++11 -Iinclude -c -o bin/Settlement.o src/Settlement.cpp
+	g++ -g -Wall -Weffc++ -std=c++11 -Iinclude -c -o bin/Simulation.o src/Simulation.cpp
 
+# Cleaning step
 clean:
-	rm -f ./bin/main
+	rm -f bin/*
+
+# Run the compiled program
+run:
+	./bin/simulation
+
+# Run the program with Valgrind
+valgrind: all
+# Run the program with Valgrind
+valgrind: all
+	valgrind --leak-check=full --show-leak-kinds=all --track-origins=yes ./bin/simulation config_file.txt

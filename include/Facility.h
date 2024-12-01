@@ -24,9 +24,7 @@ class FacilityType {
         int getLifeQualityScore() const;
         int getEnvironmentScore() const;
         int getEconomyScore() const;
-        FacilityType clone() const;
-        FacilityType(const FacilityType &other);
-
+        virtual FacilityType *clone() const;
         FacilityCategory getCategory() const;
 
     protected:
@@ -50,12 +48,8 @@ class Facility: public FacilityType {
         FacilityStatus step();
         void setStatus(FacilityStatus status);
         const FacilityStatus& getStatus() const;
-        Facility(const Facility &other);
         const string toString() const;
-        Facility *clone() const;
-        //Facility operator=(const Facility& other);
-        //Facility(Facility&& other) noexcept;
-
+        Facility *clone() const override;
 
     private:
         const string settlementName;

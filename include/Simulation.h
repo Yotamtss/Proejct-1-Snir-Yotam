@@ -4,6 +4,7 @@
 #include "Facility.h"
 #include "Plan.h"
 #include "Settlement.h"
+
 using std::string;
 using std::vector;
 
@@ -33,8 +34,9 @@ class Simulation {
         vector<FacilityType> &getFacilitiesOptions();
         vector<BaseAction*> &getActionsLog(); 
         vector<Settlement*> &getSettlements();
+        void printLog() const;
         void actionHandler(const std::string& action);
-        void Simulation::printInitialState() const;
+        void printInitialState() const;
 
 
     private:

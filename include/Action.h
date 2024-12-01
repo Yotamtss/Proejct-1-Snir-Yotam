@@ -2,7 +2,7 @@
 #include <string>
 #include <vector>
 #include "Simulation.h"
-#include <string>
+
 enum class SettlementType;
 enum class FacilityCategory;
 
