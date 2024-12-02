@@ -49,7 +49,7 @@ const FacilityType& BalancedSelection::selectFacility(const vector<FacilityType>
 
     int bestIndex = 0;
     double bestBalance = std::numeric_limits<double>::max();
-    vector<int> new_vals = {0, 0, 0};
+    vector<int> new_vals = {LifeQualityScore, EconomyScore, EnvironmentScore};
     
     for (size_t i = 0; i < facilitiesOptions.size(); i++) {
         const FacilityType& facility = facilitiesOptions[i];
@@ -66,7 +66,11 @@ const FacilityType& BalancedSelection::selectFacility(const vector<FacilityType>
             bestBalance = balance;
             bestIndex = i;
         }
+
     }
+    LifeQualityScore += facilitiesOptions[bestIndex].getLifeQualityScore();
+    EconomyScore += facilitiesOptions[bestIndex].getEconomyScore();
+    EnvironmentScore += facilitiesOptions[bestIndex].getEnvironmentScore();
 
     return facilitiesOptions[bestIndex];
 }
@@ -92,7 +96,6 @@ const FacilityType& EconomySelection::selectFacility(const vector<FacilityType>&
     }
 
     bool found = false;
-    int bestIndex = lastSelectedIndex++;
     int index = lastSelectedIndex;
     while (!found) {
         index = (index + 1) % facilitiesOptions.size();
@@ -123,7 +126,6 @@ const FacilityType& SustainabilitySelection::selectFacility(const vector<Facilit
     }
 
     bool found = false;
-    int bestIndex = lastSelectedIndex++;
     int index = lastSelectedIndex;
     while (!found) {
         index = (index + 1) % facilitiesOptions.size();

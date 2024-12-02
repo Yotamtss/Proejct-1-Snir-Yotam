@@ -199,35 +199,41 @@ const string &BaseAction::getErrorMsg() const
     ChangePlanPolicy::ChangePlanPolicy(const int planId, const std::string &newPolicy) : BaseAction(), planId(planId), newPolicy(newPolicy) {}
     void ChangePlanPolicy::act(Simulation &simulation)
     {
-        if (newPolicy == "nve")
-        {
-            NaiveSelection *ns = new NaiveSelection();
-            simulation.getPlan(planId).setSelectionPolicy(ns);
-        }
-        else if (newPolicy == "bal")
-        {
-            Plan currPlan = simulation.getPlan(planId);
-            int lif_score_tmp = currPlan.getlifeQualityScore(); 
-            int env_score_tmp = currPlan.getEnvironmentScore(); 
-            int eco_score_tmp = currPlan.getEconomyScore(); 
-            for(Facility *facil : simulation.getPlan(planId).getConstruction())
+        if(planId < 0 || planId >= simulation.getplanCounter() || newPolicy == simulation.getPlan(planId).getSelectionPolicy())
+            error("Cannot change selection policy");
+        else{
+            if (newPolicy == "nve")
             {
-                lif_score_tmp += facil->getLifeQualityScore();
-                env_score_tmp += facil->getEnvironmentScore();
-                eco_score_tmp += facil->getEconomyScore();
+                NaiveSelection *ns = new NaiveSelection();
+                simulation.getPlan(planId).setSelectionPolicy(ns);
             }
-            BalancedSelection *bs = new BalancedSelection(lif_score_tmp, eco_score_tmp, env_score_tmp);
-            simulation.getPlan(planId).setSelectionPolicy(bs);
-        }
-        else if (newPolicy == "eco")
-        {
-            EconomySelection *es = new EconomySelection();
-            simulation.getPlan(planId).setSelectionPolicy(es);
-        }
-        else if (newPolicy == "env")
-        {
-            SustainabilitySelection *ss = new SustainabilitySelection();
-            simulation.getPlan(planId).setSelectionPolicy(ss);
+            else if (newPolicy == "bal")
+            {
+                Plan currPlan = simulation.getPlan(planId);
+                int lif_score_tmp = currPlan.getlifeQualityScore(); 
+                int env_score_tmp = currPlan.getEnvironmentScore(); 
+                int eco_score_tmp = currPlan.getEconomyScore();
+
+                for(Facility *facil : simulation.getPlan(planId).getConstruction())
+                {
+                    lif_score_tmp += facil->getLifeQualityScore();
+                    env_score_tmp += facil->getEnvironmentScore();
+                    eco_score_tmp += facil->getEconomyScore();
+                }
+                BalancedSelection *bs = new BalancedSelection(lif_score_tmp, eco_score_tmp, env_score_tmp);
+                simulation.getPlan(planId).setSelectionPolicy(bs);
+            }
+            else if (newPolicy == "eco")
+            {
+                EconomySelection *es = new EconomySelection();
+                simulation.getPlan(planId).setSelectionPolicy(es);
+            }
+            else if (newPolicy == "env")
+            {
+                SustainabilitySelection *ss = new SustainabilitySelection();
+                simulation.getPlan(planId).setSelectionPolicy(ss);
+            }
+            complete();
         }
     }
     ChangePlanPolicy *ChangePlanPolicy::clone() const

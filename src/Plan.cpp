@@ -97,7 +97,12 @@ void Plan::addFacility(Facility* facility) {
         facilities.push_back(facility);
     }
     else
+    {
+        // tmp_life_qua_score += facility->getLifeQualityScore();
+        // tmp_eco_score += facility->getEconomyScore();
+        // tmp_env_score += facility->getEnvironmentScore();
         underConstruction.push_back(facility);
+    }
 
 }
 
@@ -124,6 +129,9 @@ const string Plan::toString() const {
         result += facility->toString() + "\n";
     }
 
+    for (const Facility* facility : underConstruction) {
+        result += facility->toString() + "\n";
+    }   
     return result;
 
 }
@@ -186,4 +194,18 @@ Plan::Plan(Plan&& other) noexcept
 
 const vector<Facility*> &Plan::getConstruction() const {
     return underConstruction;
+}
+
+const string Plan::getSelectionPolicy() const
+{
+    string str = selectionPolicy->toString();
+
+    if(str == "NaiveSelection")
+        return "nve";
+    else if(str == "BalancedSelection")
+        return "bal";
+    else if (str == "EconomySelection")
+        return "eco";
+    else if (str == "SustainabilitySelection")
+        return "env";
 }

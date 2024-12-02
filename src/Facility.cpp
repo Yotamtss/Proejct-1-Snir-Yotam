@@ -1,4 +1,5 @@
 #include "Facility.h"
+#include <iostream>
 
 // Constructor implementation using initialization list for const members
 FacilityType::FacilityType(const string &name, const FacilityCategory category, const int price,
@@ -122,16 +123,11 @@ Facility *Facility::clone() const
 // String representation
 const string Facility::toString() const
 {
-    string statusStr;
-    switch (status)
-    {
-    case FacilityStatus::UNDER_CONSTRUCTIONS:
-        statusStr = "UNDER_CONSTRUCTION";
-        break;
-    case FacilityStatus::OPERATIONAL:
-        statusStr = "OPERATIONAL";
-        break;
-    }
+    string statusStr;  
+    if(status == FacilityStatus::UNDER_CONSTRUCTIONS)
+        statusStr = "UNDER_CONSTRUCTIONS";
+    else
+        statusStr = "OPERATIONAL";   
 
-    return "facilityName: " + getName() + " facilityStatus: " + statusStr;
+    return "facilityName: " + getName()+ "\n" + "facilityStatus: " + statusStr;
 }

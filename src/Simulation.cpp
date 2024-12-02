@@ -287,7 +287,7 @@ void Simulation::actionHandler(const std::string &action)
         BaseAction *clonedRestore = simulateStepToBeAdded.clone();
         actionsLog.push_back(clonedRestore);
     }
-    else if (words[0] == "changePlanPoliciy")
+    else if (words[0] == "changePolicy")
     {
         ChangePlanPolicy changePlanPolicyToBeAdded = ChangePlanPolicy(std::stoi(words[1]), words[2]);
         changePlanPolicyToBeAdded.act(*this);
@@ -369,4 +369,9 @@ void Simulation::printInitialState() const
     }
 
 
+}
+
+int & Simulation::getplanCounter()
+{
+    return planCounter;
 }
