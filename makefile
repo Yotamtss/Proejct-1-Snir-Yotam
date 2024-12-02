@@ -26,7 +26,5 @@ run:
 	./bin/simulation
 
 # Run the program with Valgrind
-valgrind: all
-# Run the program with Valgrind
-valgrind: all
+c: all
 	valgrind --leak-check=full --show-leak-kinds=all --track-origins=yes ./bin/simulation config_file.txt

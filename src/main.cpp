@@ -3,7 +3,7 @@
 
 using namespace std;
 
-// Simulation* backup = nullptr;
+Simulation* backup = nullptr;
 
 int main(int argc, char** argv){
     if(argc!=2){
@@ -16,9 +16,9 @@ int main(int argc, char** argv){
     simulation.start();
     int x=5;
     int y = 7;
-    // if(backup!=nullptr){
-    // 	delete backup;
-    // 	backup = nullptr;
-    // }
+     if(backup!=nullptr){
+     	delete backup;
+     	backup = nullptr;
+     }
     return 0;
 }

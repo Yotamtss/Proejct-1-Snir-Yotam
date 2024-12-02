@@ -29,16 +29,15 @@ class Simulation {
         Simulation(const Simulation& other);
         Simulation(Simulation&& other) noexcept;
         Simulation& operator=(const Simulation& other);
-        //Simulation& operator=(Simulation&& other) noexcept;
+        Simulation& operator=(Simulation&& other) noexcept;
         int &getplanCounter();
         vector<FacilityType> &getFacilitiesOptions();
         const vector<BaseAction*> &getActionsLog(); 
         vector<Settlement*> &getSettlements();
         void printLog() const;
-        void actionHandler(const std::string& action);
+        void actionHandler(const std::string &action);
+        void NewFunction(std::vector<std::string> &words);
         void printInitialState() const;
-        vector<Plan> plans;
-
 
     private:
         bool isRunning;
@@ -46,4 +45,5 @@ class Simulation {
         vector<BaseAction*> actionsLog;
         vector<Settlement*> settlements;
         vector<FacilityType> facilitiesOptions;
+        vector<Plan> plans;
 };

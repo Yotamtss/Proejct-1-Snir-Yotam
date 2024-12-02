@@ -133,7 +133,6 @@ const string &BaseAction::getErrorMsg() const
         if (simulation.addSettlement(sttl))
         {
             complete();
-
         }
         else
         {
@@ -299,7 +298,7 @@ const string &BaseAction::getErrorMsg() const
     void PrintActionsLog::act(Simulation &simulation)
     {
 
-        simulation.printLog();
+        //simulation.printLog();
 
         vector<BaseAction *> actionsLog = simulation.getActionsLog();
         for (const auto *action : actionsLog)
@@ -354,50 +353,50 @@ const string &BaseAction::getErrorMsg() const
 
 
 
-// // BackupSimulation Implementation
-//     BackupSimulation::BackupSimulation() : BaseAction() {}
+// BackupSimulation Implementation
+    BackupSimulation::BackupSimulation() : BaseAction() {}
 
-//     void BackupSimulation::act(Simulation &simulation)
-//     {
-//         if (backup)
-//         {
-//             delete backup;
-//         }
-//         backup = new Simulation(simulation);
-//         complete();
-//     }
+    void BackupSimulation::act(Simulation &simulation)
+    {
+        // if (backup)
+        // {
+        //     delete backup;
+        // }
+        backup = new Simulation(simulation);
+        complete();
+    }
 
-//     const string BackupSimulation::toString() const
-//     {
-//         return "BackupSimulation";
-//     }
+    const string BackupSimulation::toString() const
+    {
+        return "BackupSimulation";
+    }
 
-//     BackupSimulation *BackupSimulation::clone() const
-//     {
-//         return new BackupSimulation(*this);
-//     }
+    BackupSimulation *BackupSimulation::clone() const
+    {
+        return new BackupSimulation(*this);
+    }
 
 
-// // RestoreSimulation Implementation
-//     RestoreSimulation::RestoreSimulation() : BaseAction() {}
+// RestoreSimulation Implementation
+    RestoreSimulation::RestoreSimulation() : BaseAction() {}
 
-//     void RestoreSimulation::act(Simulation &simulation)
-//     {
-//         if (backup == nullptr)
-//         {
-//             error("No backup available");
-//             return;
-//         }
-//         simulation = *backup;
-//         complete();
-//         simulation.addAction(this);
-//     }
-//     const string RestoreSimulation::toString() const
-//     {
-//         return "RestoreSimulation";
-//     }
+    void RestoreSimulation::act(Simulation &simulation)
+    {
+        if (backup == nullptr)
+        {
+            error("No backup available");
+            return;
+        }
+        simulation = *backup;
+        complete();
+        simulation.addAction(this);
+    }
+    const string RestoreSimulation::toString() const
+    {
+        return "RestoreSimulation";
+    }
 
-//     RestoreSimulation *RestoreSimulation::clone() const
-//     {
-//         return new RestoreSimulation(*this);
-//     }
+    RestoreSimulation *RestoreSimulation::clone() const
+    {
+        return new RestoreSimulation(*this);
+    }
