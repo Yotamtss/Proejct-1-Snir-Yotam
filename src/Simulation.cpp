@@ -258,18 +258,11 @@ void Simulation::actionHandler(const std::string &action)
     }
         else if (words[0] == "plan")
     {
-        if (isSettlementExists(words[1]))
-        {
-            AddPlan planToBeAdded(words[1], words[2]);
-            std::cout << planToBeAdded.toString() << "\n";
-            planToBeAdded.act(*this);
-            BaseAction *clonedRestore = planToBeAdded.clone();
-            actionsLog.push_back(clonedRestore);
-        }
-        else
-        {
-            std::cout << "No settlement like this" << std::endl;
-        }
+        AddPlan planToBeAdded(words[1], words[2]);
+        std::cout << planToBeAdded.toString() << "\n";
+        planToBeAdded.act(*this);
+        BaseAction *clonedRestore = planToBeAdded.clone();
+        actionsLog.push_back(clonedRestore);
     }
 
     else if (words[0] == "planStatus")
@@ -375,3 +368,9 @@ int & Simulation::getplanCounter()
 {
     return planCounter;
 }
+
+const vector<BaseAction*> & Simulation::getActionsLog()
+{
+    return actionsLog;
+} 
+

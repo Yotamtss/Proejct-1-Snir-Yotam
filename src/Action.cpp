@@ -71,14 +71,15 @@ const string &BaseAction::getErrorMsg() const
             return;
         }
 
-        if (selectionPolicy != "env" && selectionPolicy != "eco" &&
+        else if (selectionPolicy != "env" && selectionPolicy != "eco" &&
             selectionPolicy != "bal" && selectionPolicy != "nve")
         {
             error("Cannot create this plan: Invalid selection policy.");
             return;
         }
-
-        // Create the appropriate selection policy
+        else
+        {
+// Create the appropriate selection policy
         SelectionPolicy *policy = nullptr;
         if (selectionPolicy == "nve")
         {
@@ -104,19 +105,18 @@ const string &BaseAction::getErrorMsg() const
         if (policy)
         {
             simulation.addPlan(simulation.getSettlement(settlementName), policy);
+            complete();
             for(Plan plan : simulation.plans)
                 {}
                 //std::cout << plan.toString() << "\n";
             //delete policy; // Clean up memory after usage
         }
-        else
-        {
-            error("Cannot create this plan: Unknown error.");
-        }
+    }
+        
     }
     const string AddPlan::toString() const
     {
-        return "AddPlan " + settlementName + " " + selectionPolicy;
+        return "Plan " + settlementName + " " + selectionPolicy;
     }
 
     AddPlan *AddPlan::clone() const 
@@ -145,7 +145,19 @@ const string &BaseAction::getErrorMsg() const
 
     const string AddSettlement::toString() const 
     {
-        return "AddSettlement " + settlementName;
+        string categoryStr = "";
+        switch(settlementType)
+        { case SettlementType::VILLAGE:
+            categoryStr = "0";
+            break;
+        case SettlementType::CITY:
+            categoryStr = "1";
+            break;
+        case SettlementType::METROPOLIS:
+            categoryStr = "2";
+            break;
+        }
+        return "Settlement " + settlementName + " " + categoryStr; 
     }
 
     AddSettlement *AddSettlement::clone() const 
@@ -174,8 +186,24 @@ const string &BaseAction::getErrorMsg() const
 
     const string AddFacility::toString() const
     {
-        return "AddFacility " + facilityName;
-    }
+        string categoryStr = "";
+        switch(facilityCategory)
+        { case FacilityCategory::LIFE_QUALITY:
+            categoryStr = "0";
+            break;
+        case FacilityCategory::ECONOMY:
+            categoryStr = "1";
+            break;
+        case FacilityCategory::ENVIRONMENT:
+            categoryStr = "2";
+            break;
+        }
+        return "Facility " + facilityName + " " +
+           categoryStr + " " + 
+           to_string(price) + " " +
+           to_string(lifeQualityScore) + " " +
+           to_string(economyScore) + " " +
+           to_string(environmentScore);    }
 
     AddFacility *AddFacility::clone() const
     {
@@ -185,7 +213,15 @@ const string &BaseAction::getErrorMsg() const
     PrintPlanStatus::PrintPlanStatus(int planId) : BaseAction(), planId(planId) {}
     void PrintPlanStatus::act(Simulation &simulation)
     {
+        if(planId > simulation.getplanCounter() || planId < 0)
+        {
+            error("Plan doesnt exist");
+        }
+        else
+        {
         simulation.getPlan(planId).printStatus();
+        complete(); 
+        }
     }
     PrintPlanStatus *PrintPlanStatus::clone() const
     {
@@ -193,7 +229,7 @@ const string &BaseAction::getErrorMsg() const
     }
     const string PrintPlanStatus::toString() const
     {
-        return "Plan status of " + planId;
+        return "PlanStatus " + planId;
     }
 
     ChangePlanPolicy::ChangePlanPolicy(const int planId, const std::string &newPolicy) : BaseAction(), planId(planId), newPolicy(newPolicy) {}
@@ -242,7 +278,7 @@ const string &BaseAction::getErrorMsg() const
     }
     const string ChangePlanPolicy::toString() const
     {
-        return "Plan status of " + to_string(planId) + "changed to" + newPolicy;
+        return "changePolicy " + to_string(planId) + " " + newPolicy;
     }
 
 // PrintActionsLog Implementation
@@ -254,30 +290,30 @@ const string &BaseAction::getErrorMsg() const
 
         simulation.printLog();
 
-        // vector<BaseAction *> actionsLog = simulation.getActionsLog();
-        // for (const auto *action : actionsLog)
-        // {
-        //     if (action != this)
-        //     {
-        //         std::cout << action->toString() << " ";
-        //         switch (action->getStatus())
-        //         {
-        //         case ActionStatus::COMPLETED:
-        //             std::cout << "COMPLETED";
-        //             break;
-        //         case ActionStatus::ERROR:
-        //             std::cout << "ERROR";
-        //             break;
-        //         }
-        //         std::cout << std::endl; // Move to the next line
-        //     }
-        // }
+        vector<BaseAction *> actionsLog = simulation.getActionsLog();
+        for (const auto *action : actionsLog)
+        {
+            if (action != this)
+            {
+                std::cout << action->toString() << " ";
+                switch (action->getStatus())
+                {
+                case ActionStatus::COMPLETED:
+                    std::cout << "COMPLETED";
+                    break;
+                case ActionStatus::ERROR:
+                    std::cout << "ERROR";
+                    break;
+                }
+                std::cout << std::endl; // Move to the next line
+            }
+        }
         complete();
     }
 
     const string PrintActionsLog::toString() const
     {
-        return "PrintActionsLog";
+        return "Log";
     }
 
     PrintActionsLog *PrintActionsLog::clone() const

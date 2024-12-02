@@ -32,7 +32,7 @@ class Simulation {
         //Simulation& operator=(Simulation&& other) noexcept;
         int &getplanCounter();
         vector<FacilityType> &getFacilitiesOptions();
-        vector<BaseAction*> &getActionsLog(); 
+        const vector<BaseAction*> &getActionsLog(); 
         vector<Settlement*> &getSettlements();
         void printLog() const;
         void actionHandler(const std::string& action);
