@@ -25,7 +25,7 @@ Simulation& Simulation::operator=(const Simulation& other) {
         isRunning = other.isRunning;
         planCounter = other.planCounter;
 
-        for (auto action : actionsLog) {
+        for (auto action: actionsLog) {
             delete action; // Clean up existing actions
         }
         actionsLog.clear();
@@ -107,6 +107,7 @@ Simulation::Simulation(const string &configFilePath) : isRunning(false), planCou
     
     planCounter = plans.size();
     configFile.close();
+    printInitialState();
 }
 void Simulation::start() {
     isRunning = true;
@@ -136,7 +137,8 @@ void Simulation::addPlan(const Settlement &settlement, SelectionPolicy *selectio
     if (!isSettlementExists(settlement.getName())) {
         throw std::runtime_error("Settlement does not exist: " + settlement.getName());
     }
-    plans.emplace_back(planCounter++, settlement, selectionPolicy, facilitiesOptions);
+    plans.emplace_back(planCounter, settlement, selectionPolicy, facilitiesOptions);
+    planCounter++;
 }
 
 // Add an action to the simulation
@@ -198,7 +200,7 @@ bool Simulation::isSettlementExists(const string &settlementName) {
 }
 
 void Simulation::step(){
-    for(auto plan : plans)
+    for(Plan &plan : plans)
     {
         plan.step();
     }
@@ -211,7 +213,7 @@ void Simulation::open()
 
 void Simulation::close()
 {
-    for(auto plan : plans)
+    for(Plan &plan: plans)
     {
         plan.printStatus();
         plan.~Plan();
@@ -259,6 +261,7 @@ void Simulation::actionHandler(const std::string &action)
         if (isSettlementExists(words[1]))
         {
             AddPlan planToBeAdded(words[1], words[2]);
+            std::cout << planToBeAdded.toString() << "\n";
             planToBeAdded.act(*this);
             BaseAction *clonedRestore = planToBeAdded.clone();
             actionsLog.push_back(clonedRestore);
@@ -276,14 +279,15 @@ void Simulation::actionHandler(const std::string &action)
         BaseAction *clonedRestore = planStatusToBeAdded.clone();
         actionsLog.push_back(clonedRestore);
     }
-    if (words[0] == "step")
+    else if (words[0] == "step")
     {
         SimulateStep simulateStepToBeAdded = SimulateStep(std::stoi(words[1]));
+        //std::cout << simulateStepToBeAdded.toString();
         simulateStepToBeAdded.act(*this);
         BaseAction *clonedRestore = simulateStepToBeAdded.clone();
         actionsLog.push_back(clonedRestore);
     }
-    if (words[0] == "changePlanPoliciy")
+    else if (words[0] == "changePlanPoliciy")
     {
         ChangePlanPolicy changePlanPolicyToBeAdded = ChangePlanPolicy(std::stoi(words[1]), words[2]);
         changePlanPolicyToBeAdded.act(*this);
@@ -358,4 +362,11 @@ void Simulation::printInitialState() const
                       << ", Environment Score: " << facility.getEnvironmentScore() << std::endl;
         }
     }
+    std::cout << "Plan Options:" << std::endl;
+    for (const auto &plan : plans)
+    {
+        std::cout << plan.toString() << "\n";
+    }
+
+
 }

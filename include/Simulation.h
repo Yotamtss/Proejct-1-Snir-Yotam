@@ -37,13 +37,13 @@ class Simulation {
         void printLog() const;
         void actionHandler(const std::string& action);
         void printInitialState() const;
+        vector<Plan> plans;
 
 
     private:
         bool isRunning;
         int planCounter; //For assigning unique plan IDs
         vector<BaseAction*> actionsLog;
-        vector<Plan> plans;
         vector<Settlement*> settlements;
         vector<FacilityType> facilitiesOptions;
 };

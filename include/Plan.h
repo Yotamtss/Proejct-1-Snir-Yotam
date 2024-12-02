@@ -24,9 +24,9 @@ class Plan {
         const string toString() const;
         const int getID() const;
         Plan(const Plan& other);                          // Copy constructor
-        Plan& operator=(const Plan& other);               // Copy assignment operator
+        Plan& operator=(const Plan& other) = delete;               // Copy assignment operator
         Plan(Plan&& other) noexcept;                      // Move constructor
-        Plan& operator=(Plan&& other) noexcept;           // Move assignment operator
+        Plan& operator=(Plan&& other) noexcept = delete;           // Move assignment operator
         ~Plan();   
         
     private:

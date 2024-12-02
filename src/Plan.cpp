@@ -1,6 +1,7 @@
 #include "Plan.h"
 #include <iostream>
 #include "SelectionPolicy.h"
+#include <sstream>
 
 // Constructor
 Plan::Plan(const int planId, const Settlement &settlement, SelectionPolicy *selectionPolicy, const vector<FacilityType> &facilityOptions)
@@ -33,11 +34,13 @@ void Plan::setSelectionPolicy(SelectionPolicy *newSelectionPolicy) {
     if (selectionPolicy != nullptr) {
         delete selectionPolicy;
     }
+
     selectionPolicy = newSelectionPolicy;
 }
 
 void Plan::step() {
     // Stage 1: Check if plan is BUSY
+
     if (status != PlanStatus::BUSY) {
         // Stage 2: Select and add new facilities if possible
         while (underConstruction.size() < settlement.getConstructionLimit() && status != PlanStatus::BUSY) {
@@ -51,13 +54,17 @@ void Plan::step() {
     vector<Facility*> completedFacilities;
     for (int i = underConstruction.size() - 1; i >= 0; i--)
     {
-        Facility* facility = underConstruction[i];
-        FacilityStatus facilityStatus = facility->step();
+        FacilityStatus facilityStatus = underConstruction[i]->step();
         if (facilityStatus == FacilityStatus::OPERATIONAL) {
             // Update scores
-            addFacility(facility);
+            addFacility(underConstruction[i]);
             underConstruction.erase(underConstruction.begin() + i);
     }
+
+    /*for (auto facil : underConstruction)
+    {
+       std::cout << facil->toString() << "\n";
+    }*/
 
     }
 
@@ -81,12 +88,14 @@ const int Plan::getID() const {
 
 void Plan::addFacility(Facility* facility) {
     // Update scores
-    life_quality_score += facility->getLifeQualityScore();
-    economy_score += facility->getEconomyScore();
-    environment_score += facility->getEnvironmentScore();
 
     if (facility->getStatus() == FacilityStatus::OPERATIONAL)
+    {
+        life_quality_score += facility->getLifeQualityScore();
+        economy_score += facility->getEconomyScore();
+        environment_score += facility->getEnvironmentScore();
         facilities.push_back(facility);
+    }
     else
         underConstruction.push_back(facility);
 
@@ -110,19 +119,11 @@ const string Plan::toString() const {
     result += "EconomyScore: " + std::to_string(economy_score) + "\n";
     result += "EnvironmentScore: " + std::to_string(environment_score) + "\n";
 
-/*    // Sort facilities by ID before printing
-    vector<Facility*> allFacilities = facilities;
-    allFacilities.insert(allFacilities.end(), underConstruction.begin(), underConstruction.end());
-    std::sort(allFacilities.begin(), allFacilities.end(), 
-        [](const Facility* a, const Facility* b) {
-            return a->getName() < b->getName();
-        });
-
     // Print all facilities
-    for (const Facility* facility : allFacilities) {
+    for (const Facility* facility : facilities) {
         result += facility->toString() + "\n";
     }
-*/
+
     return result;
 
 }
@@ -181,4 +182,8 @@ Plan::Plan(Plan&& other) noexcept
     // Nullify moved-from object's pointers
     other.selectionPolicy = nullptr;
     //other.settlement = nullptr;
+}
+
+const vector<Facility*> &Plan::getConstruction() const {
+    return underConstruction;
 }

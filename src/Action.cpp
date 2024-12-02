@@ -96,12 +96,18 @@ const string &BaseAction::getErrorMsg() const
         {
             policy = new SustainabilitySelection();
         }
+        else{
+            error("Couldn't access any type");
+        }
 
         // Add the plan to the simulation
         if (policy)
         {
             simulation.addPlan(simulation.getSettlement(settlementName), policy);
-            delete policy; // Clean up memory after usage
+            for(Plan plan : simulation.plans)
+                {}
+                //std::cout << plan.toString() << "\n";
+            //delete policy; // Clean up memory after usage
         }
         else
         {
@@ -200,7 +206,17 @@ const string &BaseAction::getErrorMsg() const
         }
         else if (newPolicy == "bal")
         {
-            BalancedSelection *bs = new BalancedSelection(0, 0, 0);
+            Plan currPlan = simulation.getPlan(planId);
+            int lif_score_tmp = currPlan.getlifeQualityScore(); 
+            int env_score_tmp = currPlan.getEnvironmentScore(); 
+            int eco_score_tmp = currPlan.getEconomyScore(); 
+            for(Facility *facil : simulation.getPlan(planId).getConstruction())
+            {
+                lif_score_tmp += facil->getLifeQualityScore();
+                env_score_tmp += facil->getEnvironmentScore();
+                eco_score_tmp += facil->getEconomyScore();
+            }
+            BalancedSelection *bs = new BalancedSelection(lif_score_tmp, eco_score_tmp, env_score_tmp);
             simulation.getPlan(planId).setSelectionPolicy(bs);
         }
         else if (newPolicy == "eco")
