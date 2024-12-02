@@ -124,14 +124,6 @@ const string Plan::toString() const {
     result += "EconomyScore: " + std::to_string(economy_score) + "\n";
     result += "EnvironmentScore: " + std::to_string(environment_score) + "\n";
 
-    // Print all facilities
-    for (const Facility* facility : facilities) {
-        result += facility->toString() + "\n";
-    }
-
-    for (const Facility* facility : underConstruction) {
-        result += facility->toString() + "\n";
-    }   
     return result;
 
 }

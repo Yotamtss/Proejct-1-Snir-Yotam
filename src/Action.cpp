@@ -7,6 +7,8 @@
 
 using namespace std;
 
+extern Simulation *backup;
+
 // BaseAction Implementation
 
 BaseAction::BaseAction() : status(ActionStatus::COMPLETED), errorMsg("") {}
@@ -106,10 +108,6 @@ const string &BaseAction::getErrorMsg() const
         {
             simulation.addPlan(simulation.getSettlement(settlementName), policy);
             complete();
-            for(Plan plan : simulation.plans)
-                {}
-                //std::cout << plan.toString() << "\n";
-            //delete policy; // Clean up memory after usage
         }
     }
         
@@ -219,7 +217,20 @@ const string &BaseAction::getErrorMsg() const
         }
         else
         {
-        simulation.getPlan(planId).printStatus();
+        Plan currPlan = simulation.getPlan(planId);
+        currPlan.printStatus();
+
+        string result = "";
+
+            // Print all facilities
+        for (const Facility* facility : currPlan.getFacilities()) {
+            result += facility->toString() + "\n";
+        }
+
+        for (const Facility* facility : currPlan.getConstruction()) {
+            result += facility->toString() + "\n";
+         }   
+        std::cout << result;
         complete(); 
         }
     }

@@ -104,7 +104,7 @@ Simulation::Simulation(const string &configFilePath) : isRunning(false), planCou
         
         actionHandler(line); // Handle the full line of input        
     }
-    
+    actionsLog.clear();
     planCounter = plans.size();
     configFile.close();
     printInitialState();
@@ -119,12 +119,6 @@ void Simulation::start() {
     {
         std::cout << "Type an action (or 'close' to stop): ";
         std::getline(std::cin, action); // Use getline to capture the entire input line
-
-        if (action == "close")
-        {
-            std::cout << "Simulation finished." << std::endl;
-            break; // Exit the loop if user types "close"
-        }
 
         actionHandler(action); // Handle the full line of input
     }
@@ -259,7 +253,6 @@ void Simulation::actionHandler(const std::string &action)
         else if (words[0] == "plan")
     {
         AddPlan planToBeAdded(words[1], words[2]);
-        std::cout << planToBeAdded.toString() << "\n";
         planToBeAdded.act(*this);
         BaseAction *clonedRestore = planToBeAdded.clone();
         actionsLog.push_back(clonedRestore);
@@ -287,7 +280,11 @@ void Simulation::actionHandler(const std::string &action)
         BaseAction *clonedRestore = changePlanPolicyToBeAdded.clone();
         actionsLog.push_back(clonedRestore);
     }
-
+    else if(words[0] == "close")
+    {
+        Close close = Close();
+        close.act(*this);
+    }
     else if (words[0] == "restore")
     {
         std::cout << "Call restore operation" << std::endl;
@@ -295,6 +292,10 @@ void Simulation::actionHandler(const std::string &action)
 
     else if (words[0] == "backup")
     {
+        BackupSimulation backup = BackupSimulation();
+        backup.act(*this);
+        BaseAction *clonedRestore = backup.clone();
+        actionsLog.push_back(clonedRestore);
         std::cout << "Call backup operation" << std::endl;
     }
 
