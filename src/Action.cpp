@@ -389,7 +389,6 @@ const string &BaseAction::getErrorMsg() const
         }
         simulation = *backup;
         complete();
-        //simulation.addAction(this);
     }
     const string RestoreSimulation::toString() const
     {

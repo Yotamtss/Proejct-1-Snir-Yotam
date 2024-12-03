@@ -69,7 +69,7 @@ Simulation& Simulation::operator=(const Simulation& other) {
         for (auto settlement : other.settlements) {
             settlements.push_back(new Settlement(*settlement)); // Deep copy each settlement
         }
-        //facilitiesOptions.clear();
+        // facilitiesOptions.clear();
 
         for (auto facil : other.facilitiesOptions)
             facilitiesOptions.push_back(facil);
@@ -105,7 +105,6 @@ Simulation& Simulation::operator=(const Simulation& other) {
 
 Simulation::~Simulation() {
 
-    std::cout << "hello";
     for (BaseAction *action : actionsLog)
     {
         if(action)
@@ -146,6 +145,14 @@ Simulation::Simulation(const string &configFilePath) : isRunning(false), planCou
         
         actionHandler(line); // Handle the full line of input        
     }
+    
+    for (BaseAction *action : actionsLog)
+    {
+        if(action)
+           delete action;
+        action=nullptr;
+    }
+
     actionsLog.clear();
     planCounter = plans.size();
     configFile.close();
