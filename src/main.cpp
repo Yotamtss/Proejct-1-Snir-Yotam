@@ -14,8 +14,7 @@ int main(int argc, char** argv){
     std::cout << configurationFile << "\n\n\n";
     Simulation simulation(configurationFile);
     simulation.start();
-    int x=5;
-    int y = 7;
+
      if(backup!=nullptr){
      	delete backup;
      	backup = nullptr;

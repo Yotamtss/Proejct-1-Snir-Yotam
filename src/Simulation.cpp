@@ -50,9 +50,9 @@ Simulation& Simulation::operator=(const Simulation& other) {
         isRunning = other.isRunning;
         planCounter = other.planCounter;
 
-        // for (auto action: actionsLog) {
-        //     delete action; // Clean up existing actions
-        // }
+        for (auto *action: actionsLog) {
+            delete action; // Clean up existing actions
+        }
         actionsLog.clear();
         for (auto action : other.actionsLog) {
             actionsLog.push_back(action->clone()); // Clone each action
@@ -105,10 +105,23 @@ Simulation& Simulation::operator=(const Simulation& other) {
 
 Simulation::~Simulation() {
 
-    for (auto action : actionsLog) delete action;
+    std::cout << "hello";
+    for (BaseAction *action : actionsLog)
+    {
+        if(action)
+           delete action;
+        action=nullptr;
+    }
+    for (Settlement *settlement : settlements)
+    {
+        if(settlement)
+            delete settlement;
+        settlement = nullptr;
+    }
     actionsLog.clear();
-    for (auto settlement : settlements) delete settlement;
     settlements.clear();
+    plans.clear();
+    facilitiesOptions.clear();
 
 }
 
@@ -151,6 +164,9 @@ void Simulation::start() {
 
         actionHandler(action); // Handle the full line of input
     }
+
+    delete backup;
+    backup = nullptr;
 
     isRunning = false; // Mark simulation as stopped
 }
@@ -318,16 +334,18 @@ void Simulation::actionHandler(const std::string &action)
     {
         RestoreSimulation restore = RestoreSimulation();
         restore.act(*this);
-        actionsLog.push_back(&restore);
+        BaseAction *clonedRestore = restore.clone();
+        actionsLog.push_back(clonedRestore);
     }
 
     else if (words[0] == "backup")
     {
         BackupSimulation backupSim = BackupSimulation();
         backupSim.act(*this);
-        backup->printInitialState();
-        //BaseAction *clonedRestore = backup.clone();
-        actionsLog.push_back(&backupSim);
+        //backup->printInitialState();
+        BaseAction *clonedRestore = backupSim.clone();
+        actionsLog.push_back(clonedRestore);
+        backup->printLog();
     }
 
 }
@@ -405,4 +423,3 @@ const vector<BaseAction*> & Simulation::getActionsLog()
 {
     return actionsLog;
 } 
-

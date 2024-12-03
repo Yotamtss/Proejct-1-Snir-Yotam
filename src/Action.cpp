@@ -358,10 +358,10 @@ const string &BaseAction::getErrorMsg() const
 
     void BackupSimulation::act(Simulation &simulation)
     {
-        // if (backup)
-        // {
-        //     delete backup;
-        // }
+         if (backup)
+         {
+             delete backup;
+         }
         backup = new Simulation(simulation);
         complete();
     }
@@ -389,7 +389,7 @@ const string &BaseAction::getErrorMsg() const
         }
         simulation = *backup;
         complete();
-        simulation.addAction(this);
+        //simulation.addAction(this);
     }
     const string RestoreSimulation::toString() const
     {
