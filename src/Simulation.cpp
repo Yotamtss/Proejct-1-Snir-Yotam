@@ -24,7 +24,11 @@ Simulation::Simulation(const Simulation& other) {
 
 Simulation::Simulation(const Simulation& other)
     : isRunning(other.isRunning),
-      planCounter(other.planCounter) {
+      planCounter(other.planCounter),
+      actionsLog(),
+      settlements(),
+      facilitiesOptions(),
+      plans() {
     
     // Deep copy the actionsLog
     for (const auto& action : other.actionsLog) {
@@ -62,9 +66,9 @@ Simulation& Simulation::operator=(const Simulation& other) {
         for(auto plan : other.plans)
             plans.push_back(plan);
 
-        // for (auto settlement : settlements) {
-        //     delete settlement; // Clean up existing settlements
-        // }
+        for (auto settlement : settlements) {
+            delete settlement; // Clean up existing settlements
+        }
         settlements.clear();
         for (auto settlement : other.settlements) {
             settlements.push_back(new Settlement(*settlement)); // Deep copy each settlement
@@ -125,7 +129,12 @@ Simulation::~Simulation() {
 }
 
 // Constructor: Parse Config File
-Simulation::Simulation(const string &configFilePath) : isRunning(false), planCounter(0) {
+Simulation::Simulation(const string &configFilePath) : isRunning(false), // Initialize to false
+      planCounter(0),   // Initialize to 0
+      actionsLog(),     // Default initialize as an empty vector
+      settlements(),    // Default initialize as an empty vector
+      facilitiesOptions(), // Default initialize as an empty vector
+      plans()            {
     std::ifstream configFile(configFilePath);
     if (!configFile.is_open()) {
         throw std::runtime_error("Failed to open config file: " + configFilePath);
@@ -211,10 +220,12 @@ Settlement &Simulation::getSettlement(const string &settlementName)
         if(stl->getName() == settlementName)
             return *stl;
     }
+        throw std::runtime_error("Settlement not found");// add here error msg!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+
 } 
 Plan &Simulation::getPlan(const int planID)
 {
-    if (planID < 0 || planID >= plans.size())
+if (planID < 0 || static_cast<size_t>(planID) >= plans.size()) 
     {
         std::cout << "Invalid plan ID" << std::endl;
     }
@@ -320,7 +331,6 @@ void Simulation::actionHandler(const std::string &action)
     else if (words[0] == "step")
     {
         SimulateStep simulateStepToBeAdded = SimulateStep(std::stoi(words[1]));
-        //std::cout << simulateStepToBeAdded.toString();
         simulateStepToBeAdded.act(*this);
         BaseAction *clonedRestore = simulateStepToBeAdded.clone();
         actionsLog.push_back(clonedRestore);
@@ -349,10 +359,8 @@ void Simulation::actionHandler(const std::string &action)
     {
         BackupSimulation backupSim = BackupSimulation();
         backupSim.act(*this);
-        //backup->printInitialState();
         BaseAction *clonedRestore = backupSim.clone();
         actionsLog.push_back(clonedRestore);
-        backup->printLog();
     }
 
 }

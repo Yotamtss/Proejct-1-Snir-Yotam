@@ -51,6 +51,10 @@ FacilityCategory FacilityType::getCategory() const
     return category;
 }
 
+FacilityType::~FacilityType() //***************************** */
+{
+}
+
 Facility::Facility(const string &name, const string &settlementName, const FacilityCategory category,
                    const int price, const int lifeQuality_score, const int economy_score, const int environment_score)
     : FacilityType(name, category, price, lifeQuality_score, economy_score, environment_score) // Call base constructor
@@ -119,6 +123,9 @@ Facility *Facility::clone() const
     return new Facility(*this);
 }
 
+Facility::~Facility() // ***************************************/
+{
+}
 
 // String representation
 const string Facility::toString() const

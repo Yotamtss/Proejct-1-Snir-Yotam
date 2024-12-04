@@ -14,7 +14,10 @@ Plan::Plan(const int planId, const Settlement &settlement, SelectionPolicy *sele
     , facilityOptions(facilityOptions)
     , life_quality_score(0)
     , economy_score(0)
-    , environment_score(0)
+    , environment_score(0) 
+    ,tmp_life_qua_score(0)
+    ,tmp_eco_score(0)
+    ,tmp_env_score(0)
 {
 }
 
@@ -39,11 +42,17 @@ void Plan::setSelectionPolicy(SelectionPolicy *newSelectionPolicy) {
 }
 
 void Plan::step() {
+
+    if (underConstruction.empty()) {
+        //std::cerr << "Plan::step(): No facilities to process!" << std::endl;
+        return;
+    }
+
     // Stage 1: Check if plan is BUSY
 
     if (status != PlanStatus::BUSY) {
         // Stage 2: Select and add new facilities if possible
-        while (underConstruction.size() < settlement.getConstructionLimit() && status != PlanStatus::BUSY) {
+    while (underConstruction.size() < static_cast<size_t>(settlement.getConstructionLimit()) && status != PlanStatus::BUSY) {
             // Select facility based on current policy
             Facility* newFacility = new Facility(selectionPolicy->selectFacility(facilityOptions), settlement.getName());
             addFacility(newFacility);
@@ -69,13 +78,22 @@ void Plan::step() {
     }
 
     // Stage 4: Update plan status
-    status = (underConstruction.size() >= settlement.getConstructionLimit()) 
+    status = (underConstruction.size() >= static_cast<size_t>(settlement.getConstructionLimit()))
         ? PlanStatus::BUSY 
         : PlanStatus::AVALIABLE;
 }
 
-void Plan::printStatus() {
-    std::cout << toString();
+void Plan::printStatus(){
+    string statusString;
+    switch (status) {
+        case PlanStatus::AVALIABLE:
+            statusString =  "AVALIABLE";
+            break;
+        case PlanStatus::BUSY:
+            statusString = "BUSY";
+            break;
+    }
+    std::cout << statusString << endl;
 }
 
 const vector<Facility*> &Plan::getFacilities() const {
@@ -151,10 +169,16 @@ Plan::Plan(const Plan& other)
     , settlement(other.settlement) // Settlement assumed to be a raw pointer, copied as-is
     , selectionPolicy(other.selectionPolicy ? other.selectionPolicy->clone() : nullptr) // Clone policy
     , status(other.status)
+    , facilities()
+    , underConstruction()
     , facilityOptions(other.facilityOptions)
     , life_quality_score(other.life_quality_score)
     , economy_score(other.economy_score)
-    , environment_score(other.environment_score) {
+    , environment_score(other.environment_score)
+    ,tmp_life_qua_score(other.tmp_life_qua_score)
+    ,tmp_eco_score(other.tmp_eco_score)
+    ,tmp_env_score(other.tmp_env_score)
+     {
     
     // Deep copy facilities
     for (const Facility* facility : other.facilities) {
@@ -177,7 +201,11 @@ Plan::Plan(Plan&& other) noexcept
     , facilityOptions(std::move(other.facilityOptions))
     , life_quality_score(other.life_quality_score)
     , economy_score(other.economy_score)
-    , environment_score(other.environment_score) {
+    , environment_score(other.environment_score)
+    ,tmp_life_qua_score(other.tmp_life_qua_score)
+    ,tmp_eco_score(other.tmp_eco_score)
+    ,tmp_env_score(other.tmp_env_score)
+     {
     
     // Nullify moved-from object's pointers
     other.selectionPolicy = nullptr;
@@ -200,4 +228,5 @@ const string Plan::getSelectionPolicy() const
         return "eco";
     else if (str == "SustainabilitySelection")
         return "env";
+    return str; //remember to change if it causes problems,ask yotam
 }

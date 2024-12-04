@@ -133,10 +133,13 @@ const string &BaseAction::getErrorMsg() const
         if (simulation.addSettlement(sttl))
         {
             complete();
+
         }
         else
         {
             error("Settlement already exists");
+            delete sttl;
+            sttl = nullptr;
         }
     }
 
@@ -217,7 +220,7 @@ const string &BaseAction::getErrorMsg() const
         else
         {
         Plan currPlan = simulation.getPlan(planId);
-        currPlan.printStatus();
+        std::cout << currPlan.toString();
 
         string result = "";
 
@@ -279,6 +282,7 @@ const string &BaseAction::getErrorMsg() const
                 SustainabilitySelection *ss = new SustainabilitySelection();
                 simulation.getPlan(planId).setSelectionPolicy(ss);
             }
+            std::cout << simulation.getPlan(planId).getSelectionPolicy();
             complete();
         }
     }
@@ -297,9 +301,6 @@ const string &BaseAction::getErrorMsg() const
 
     void PrintActionsLog::act(Simulation &simulation)
     {
-
-        //simulation.printLog();
-
         vector<BaseAction *> actionsLog = simulation.getActionsLog();
         for (const auto *action : actionsLog)
         {
@@ -358,10 +359,10 @@ const string &BaseAction::getErrorMsg() const
 
     void BackupSimulation::act(Simulation &simulation)
     {
-         if (backup)
-         {
-             delete backup;
-         }
+        if (backup)
+        {
+            delete backup;
+        }
         backup = new Simulation(simulation);
         complete();
     }
@@ -389,6 +390,15 @@ const string &BaseAction::getErrorMsg() const
         }
         simulation = *backup;
         complete();
+
+           // Create a temporary backup and use swap to avoid double deletion issues
+    // Simulation temp = *backup;
+    // std::swap(simulation, temp);
+
+    // complete();
+
+    // // Log this action in the restored simulation
+    // simulation.addAction(this->clone());
     }
     const string RestoreSimulation::toString() const
     {

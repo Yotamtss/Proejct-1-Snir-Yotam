@@ -26,7 +26,7 @@ class FacilityType {
         int getEconomyScore() const;
         virtual FacilityType *clone() const;
         FacilityCategory getCategory() const;
-
+        virtual ~FacilityType();  //****************************** */
     protected:
         const string name;
         const FacilityCategory category;
@@ -50,6 +50,7 @@ class Facility: public FacilityType {
         const FacilityStatus& getStatus() const;
         const string toString() const;
         Facility *clone() const override;
+        ~Facility() override; // ****************************/
 
     private:
         const string settlementName;
