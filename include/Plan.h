@@ -31,7 +31,12 @@ class Plan {
         const vector<Facility*> &getConstruction() const;
         const string getSelectionPolicy() const;
 
-        
+        //RABIN SHIT
+
+        SelectionPolicy *getPolicy() const;
+        const string &getSettlement() const;
+        Plan(const int planId, const Settlement &settlement, SelectionPolicy *selectionPolicy, const vector<FacilityType> &facilityOptions, int life_quality_score, int economy_score, int environment_score, vector<Facility *> facilities, vector<Facility *> underConstruction);
+
     private:
         int plan_id;
         const Settlement &settlement;
@@ -41,5 +46,4 @@ class Plan {
         vector<Facility*> underConstruction;
         const vector<FacilityType> &facilityOptions;
         int life_quality_score, economy_score, environment_score;
-        int tmp_life_qua_score, tmp_eco_score, tmp_env_score;
 };

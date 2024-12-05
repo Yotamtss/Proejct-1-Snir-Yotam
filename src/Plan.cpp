@@ -15,10 +15,29 @@ Plan::Plan(const int planId, const Settlement &settlement, SelectionPolicy *sele
     , life_quality_score(0)
     , economy_score(0)
     , environment_score(0) 
-    ,tmp_life_qua_score(0)
-    ,tmp_eco_score(0)
-    ,tmp_env_score(0)
 {
+}
+
+
+//DEEP COPY CONSTRUCTOR
+
+Plan::Plan(const int planId,
+           const Settlement &settlement,
+           SelectionPolicy *selectionPolicy,
+           const std::vector<FacilityType> &facilityOptions,
+           int life_quality_score,
+           int economy_score,
+           int environment_score,
+           std::vector<Facility *> facilities,
+           std::vector<Facility *> underConstruction)
+    : Plan(planId, settlement, selectionPolicy, facilityOptions) // Delegate to first constructor
+{
+    // Additional initialization
+    this->life_quality_score = life_quality_score;
+    this->economy_score = economy_score;
+    this->environment_score = environment_score;
+    this->facilities = std::move(facilities);
+    this->underConstruction = std::move(underConstruction);
 }
 
 const int Plan::getlifeQualityScore() const {
@@ -43,10 +62,10 @@ void Plan::setSelectionPolicy(SelectionPolicy *newSelectionPolicy) {
 
 void Plan::step() {
 
-    if (underConstruction.empty()) {
-        //std::cerr << "Plan::step(): No facilities to process!" << std::endl;
-        return;
-    }
+    // if (underConstruction.empty()) {
+    //     //std::cerr << "Plan::step(): No facilities to process!" << std::endl;
+    //     return;
+    // }
 
     // Stage 1: Check if plan is BUSY
 
@@ -84,16 +103,8 @@ void Plan::step() {
 }
 
 void Plan::printStatus(){
-    string statusString;
-    switch (status) {
-        case PlanStatus::AVALIABLE:
-            statusString =  "AVALIABLE";
-            break;
-        case PlanStatus::BUSY:
-            statusString = "BUSY";
-            break;
-    }
-    std::cout << statusString << endl;
+
+    std::cout << toString();
 }
 
 const vector<Facility*> &Plan::getFacilities() const {
@@ -116,9 +127,6 @@ void Plan::addFacility(Facility* facility) {
     }
     else
     {
-        // tmp_life_qua_score += facility->getLifeQualityScore();
-        // tmp_eco_score += facility->getEconomyScore();
-        // tmp_env_score += facility->getEnvironmentScore();
         underConstruction.push_back(facility);
     }
 
@@ -175,9 +183,6 @@ Plan::Plan(const Plan& other)
     , life_quality_score(other.life_quality_score)
     , economy_score(other.economy_score)
     , environment_score(other.environment_score)
-    ,tmp_life_qua_score(other.tmp_life_qua_score)
-    ,tmp_eco_score(other.tmp_eco_score)
-    ,tmp_env_score(other.tmp_env_score)
      {
     
     // Deep copy facilities
@@ -202,9 +207,6 @@ Plan::Plan(Plan&& other) noexcept
     , life_quality_score(other.life_quality_score)
     , economy_score(other.economy_score)
     , environment_score(other.environment_score)
-    ,tmp_life_qua_score(other.tmp_life_qua_score)
-    ,tmp_eco_score(other.tmp_eco_score)
-    ,tmp_env_score(other.tmp_env_score)
      {
     
     // Nullify moved-from object's pointers
@@ -228,5 +230,20 @@ const string Plan::getSelectionPolicy() const
         return "eco";
     else if (str == "SustainabilitySelection")
         return "env";
-    return str; //remember to change if it causes problems,ask yotam
+    return str; 
 }
+
+//RABIN SHIT
+
+
+SelectionPolicy *Plan::getPolicy() const
+{
+    return selectionPolicy;
+}
+
+const string &Plan::getSettlement() const
+{
+    return settlement.getName();
+}
+
+

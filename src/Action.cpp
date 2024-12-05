@@ -213,15 +213,14 @@ const string &BaseAction::getErrorMsg() const
     PrintPlanStatus::PrintPlanStatus(int planId) : BaseAction(), planId(planId) {}
     void PrintPlanStatus::act(Simulation &simulation)
     {
-        if(planId > simulation.getplanCounter() || planId < 0)
+        if(planId >= simulation.getplanCounter() || planId < 0)
         {
             error("Plan doesnt exist");
         }
         else
         {
         Plan currPlan = simulation.getPlan(planId);
-        std::cout << currPlan.toString();
-
+        currPlan.printStatus();
         string result = "";
 
             // Print all facilities
@@ -242,7 +241,7 @@ const string &BaseAction::getErrorMsg() const
     }
     const string PrintPlanStatus::toString() const
     {
-        return "PlanStatus " + planId;
+        return "PlanStatus " + to_string(planId);
     }
 
     ChangePlanPolicy::ChangePlanPolicy(const int planId, const std::string &newPolicy) : BaseAction(), planId(planId), newPolicy(newPolicy) {}
@@ -282,7 +281,6 @@ const string &BaseAction::getErrorMsg() const
                 SustainabilitySelection *ss = new SustainabilitySelection();
                 simulation.getPlan(planId).setSelectionPolicy(ss);
             }
-            std::cout << simulation.getPlan(planId).getSelectionPolicy();
             complete();
         }
     }
@@ -302,7 +300,7 @@ const string &BaseAction::getErrorMsg() const
     void PrintActionsLog::act(Simulation &simulation)
     {
         vector<BaseAction *> actionsLog = simulation.getActionsLog();
-        for (const auto *action : actionsLog)
+        for (BaseAction *action : actionsLog)
         {
             if (action != this)
             {

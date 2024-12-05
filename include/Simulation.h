@@ -36,11 +36,10 @@ class Simulation {
         vector<Settlement*> &getSettlements();
         void printLog() const;
         void actionHandler(const std::string &action);
-        void NewFunction(std::vector<std::string> &words);
-        void printInitialState() const;
 
     private:
         bool isRunning;
+        int settleCounter;
         int planCounter; //For assigning unique plan IDs
         vector<BaseAction*> actionsLog;
         vector<Settlement*> settlements;
