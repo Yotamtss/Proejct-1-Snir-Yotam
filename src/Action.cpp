@@ -389,14 +389,6 @@ const string &BaseAction::getErrorMsg() const
         simulation = *backup;
         complete();
 
-           // Create a temporary backup and use swap to avoid double deletion issues
-    // Simulation temp = *backup;
-    // std::swap(simulation, temp);
-
-    // complete();
-
-    // // Log this action in the restored simulation
-    // simulation.addAction(this->clone());
     }
     const string RestoreSimulation::toString() const
     {

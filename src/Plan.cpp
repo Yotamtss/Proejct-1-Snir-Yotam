@@ -62,11 +62,6 @@ void Plan::setSelectionPolicy(SelectionPolicy *newSelectionPolicy) {
 
 void Plan::step() {
 
-    // if (underConstruction.empty()) {
-    //     //std::cerr << "Plan::step(): No facilities to process!" << std::endl;
-    //     return;
-    // }
-
     // Stage 1: Check if plan is BUSY
 
     if (status != PlanStatus::BUSY) {
@@ -88,11 +83,6 @@ void Plan::step() {
             addFacility(underConstruction[i]);
             underConstruction.erase(underConstruction.begin() + i);
     }
-
-    /*for (auto facil : underConstruction)
-    {
-       std::cout << facil->toString() << "\n";
-    }*/
 
     }
 

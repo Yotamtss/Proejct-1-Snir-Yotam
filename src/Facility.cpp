@@ -16,7 +16,6 @@ FacilityType::FacilityType(const string &name, const FacilityCategory category, 
       ,
       environment_score(environment_score) // Initialize const int environment_score
 {
-    // Constructor body is empty since all initialization is done in the initialization list
 }
 
 
@@ -51,7 +50,8 @@ FacilityCategory FacilityType::getCategory() const
     return category;
 }
 
-FacilityType::~FacilityType() //***************************** */
+// Destructor: does nothing since FacilityType has no dynamic memory
+FacilityType::~FacilityType() 
 {
 }
 
@@ -123,7 +123,8 @@ Facility *Facility::clone() const
     return new Facility(*this);
 }
 
-Facility::~Facility() // ***************************************/
+// Destructor: does nothing since Facility has no dynamic memory
+Facility::~Facility() 
 {
 }
 

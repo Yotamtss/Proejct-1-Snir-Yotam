@@ -78,18 +78,12 @@ void Simulation::start() {
 
 // Add a plan to the simulation
 void Simulation::addPlan(const Settlement &settlement, SelectionPolicy *selectionPolicy) {
-    if (!isSettlementExists(settlement.getName())) {
-        throw std::runtime_error("Settlement does not exist: " + settlement.getName());
-    }
     plans.emplace_back(planCounter, settlement, selectionPolicy, facilitiesOptions);
     planCounter++;
 }
 
 // Add an action to the simulation
 void Simulation::addAction(BaseAction *action) {
-    if (!action) {
-        throw std::runtime_error("Invalid action.");
-    }
     actionsLog.push_back(action);
 }
 
@@ -109,9 +103,9 @@ Settlement &Simulation::getSettlement(const string &settlementName)
         if(stl->getName() == settlementName)
             return *stl;
     }
-        throw std::runtime_error("Settlement not found");// add here error msg!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-
+        throw std::runtime_error("Settlement not found");
 } 
+
 Plan &Simulation::getPlan(const int planID)
 {
 if (planID < 0 || static_cast<size_t>(planID) >= plans.size()) 
@@ -162,7 +156,6 @@ void Simulation::close()
     for(Plan &plan: plans)
     {
         plan.printStatus();
-        //plan.~Plan();
     }
     isRunning = false;
 }
@@ -280,7 +273,10 @@ const vector<BaseAction*> & Simulation::getActionsLog()
 Simulation::Simulation(const Simulation &other)
     : isRunning(other.isRunning),
       planCounter(other.planCounter),
-      facilitiesOptions(other.facilitiesOptions)
+      actionsLog(),
+      settlements(),
+      facilitiesOptions(other.facilitiesOptions),
+      plans()
 {
     // Deep copy actionsLog
     for (auto *action : other.actionsLog)
@@ -308,11 +304,6 @@ Simulation::Simulation(const Simulation &other)
                 newSettlement = copiedSettlement;
                 break;
             }
-        }
-
-        if (!newSettlement)
-        {
-            throw std::runtime_error("Settlement not found for Plan during copy constructor: " + settlementName);
         }
 
         // Deep copy facilities
@@ -398,10 +389,6 @@ Simulation &Simulation::operator=(const Simulation &other)
                 break;
             }
         }
-        if (!newSettlement)
-        {
-            throw std::runtime_error("Settlement not found during copy assignment.");
-        }
 
         std::vector<Facility *> copiedFacilities;
         for (Facility *facility : plan.getFacilities())
@@ -434,9 +421,9 @@ Simulation::Simulation(Simulation&& other) noexcept
     : isRunning(other.isRunning),
       planCounter(other.planCounter),
       actionsLog(std::move(other.actionsLog)),
-      plans(std::move(other.plans)),
       settlements(std::move(other.settlements)),
-      facilitiesOptions(std::move(other.facilitiesOptions)) {
+      facilitiesOptions(std::move(other.facilitiesOptions)),
+      plans(std::move(other.plans)){
     other.isRunning = false;
     other.planCounter = 0;
 }
